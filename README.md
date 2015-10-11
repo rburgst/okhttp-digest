@@ -22,3 +22,8 @@ ported from Apache Http Client.
 
 [ ![Download](https://api.bintray.com/packages/rburgst/android/okhttp-digest/images/download.svg) ](https://bintray.com/rburgst/android/okhttp-digest/_latestVersion)
 
+## Use via gradle
+
+```groovy
+testCompile 'com.burgstaller:okhttp-digest:0.1'
+```
