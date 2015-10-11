@@ -25,5 +25,5 @@ ported from Apache Http Client.
 ## Use via gradle
 
 ```groovy
-testCompile 'com.burgstaller:okhttp-digest:0.1'
+compile 'com.burgstaller:okhttp-digest:0.1'
 ```
