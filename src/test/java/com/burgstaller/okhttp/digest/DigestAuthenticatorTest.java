@@ -16,8 +16,7 @@ public class DigestAuthenticatorTest {
 
     @Before
     public void setUp() throws Exception {
-        authenticator = new DigestAuthenticator();
-        authenticator.setCredentials(new Credentials("user1", "user1"));
+        authenticator = new DigestAuthenticator(new Credentials("user1", "user1"));
     }
 
     @Test

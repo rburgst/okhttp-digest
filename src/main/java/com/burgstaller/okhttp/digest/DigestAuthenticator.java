@@ -63,13 +63,17 @@ public class DigestAuthenticator implements Authenticator {
 
     Map<String, String> parameters = new HashMap<>();
     private Charset credentialsCharset = Charset.forName("ASCII");
-    private Credentials credentials;
+    private final Credentials credentials;
     private String lastNonce;
     private long nounceCount;
     private String cnonce;
     private String a1;
     private String a2;
     private boolean proxy;
+
+    public DigestAuthenticator(Credentials credentials) {
+        this.credentials = credentials;
+    }
 
     private static MessageDigest createMessageDigest(
             final String digAlg) {
@@ -426,10 +430,6 @@ public class DigestAuthenticator implements Authenticator {
 
     public void setProxy(boolean proxy) {
         this.proxy = proxy;
-    }
-
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
     }
 
     private class AuthenticationException extends IllegalStateException {
