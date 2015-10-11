@@ -50,11 +50,15 @@ dependencies {
 def siteUrl = 'https://github.com/rburgst/okhttp-digest'
 def gitUrl = 'https://github.com/rburgst/okhttp-digest.git'
 
-bintray {
-    if (hasProperty('bintray_user')) {
-        user = property('bintray_user')
-        key = property('bintray_api_key')
+if (!hasProperty('bintray_user')) {
+    project.ext {
+        bintray_user = "undef"
+        bintray_api_key = "undef"
     }
+}
+bintray {
+    user = property('bintray_user')
+    key = property('bintray_api_key')
 
     configurations = ['archives'] //When uploading configuration files
     pkg {
