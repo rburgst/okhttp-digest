@@ -1,5 +1,6 @@
 # okhttp-digest
-A digest authenticator for okhttp
+A digest authenticator for okhttp. Most of the code is 
+ported from Apache Http Client.
 
 # Usage
 
