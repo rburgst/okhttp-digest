@@ -19,3 +19,6 @@ ported from Apache Http Client.
           .build();
         Response response = client.newCall(request).execute();
 ```
+
+[ ![Download](https://api.bintray.com/packages/rburgst/android/okhttp-digest/images/download.svg) ](https://bintray.com/rburgst/android/okhttp-digest/_latestVersion)
+
