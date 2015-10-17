@@ -1,5 +1,6 @@
 package com.burgstaller.okhttp;
 
+import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.squareup.okhttp.Authenticator;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -15,9 +16,9 @@ import java.util.Map;
  */
 public class CachingAuthenticatorDecorator implements Authenticator {
     private final Authenticator innerAuthenticator;
-    private final Map<String, String> authCache;
+    private final Map<String, CachingAuthenticator> authCache;
 
-    public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, String> authCache) {
+    public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, CachingAuthenticator> authCache) {
         this.innerAuthenticator = innerAuthenticator;
         this.authCache = authCache;
     }
@@ -27,8 +28,8 @@ public class CachingAuthenticatorDecorator implements Authenticator {
         Request authenticated = innerAuthenticator.authenticate(proxy, response);
         if (authenticated != null) {
             String authorizationValue = authenticated.header("Authorization");
-            if (authorizationValue != null) {
-                authCache.put(authenticated.url().getHost(), authorizationValue);
+            if (authorizationValue != null && innerAuthenticator instanceof CachingAuthenticator) {
+                authCache.put(authenticated.url().getHost(), (CachingAuthenticator) innerAuthenticator);
             }
         }
         return authenticated;

@@ -2,6 +2,7 @@ package com.burgstaller.okhttp;
 
 import android.util.Log;
 
+import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -15,22 +16,26 @@ import java.util.Map;
  */
 public class AuthenticationCacheInterceptor implements Interceptor {
     private static final String TAG = "AuthInt";
-    private final Map<String, String> authCache;
+    private final Map<String, CachingAuthenticator> authCache;
 
-    public AuthenticationCacheInterceptor(Map<String, String> authCache) {
+    public AuthenticationCacheInterceptor(Map<String, CachingAuthenticator> authCache) {
         this.authCache = authCache;
     }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        String host = chain.request().uri().getHost();
-        String authHeaderValue = authCache.get(host);
-        final Request authRequest;
-        if (authHeaderValue != null) {
-            Log.d(TAG, "reusing auth from cache: " + authHeaderValue);
-            authRequest = chain.request().newBuilder().header("Authorization", authHeaderValue).build();
-        } else {
-            authRequest = chain.request();
+        final Request request = chain.request();
+        String host = request.uri().getHost();
+        CachingAuthenticator authenticator = authCache.get(host);
+        Request authRequest = null;
+        if (authenticator != null) {
+            authRequest = authenticator.authenticateWithState(request);
+            if (authRequest != null) {
+                Log.d(TAG, "reusing auth from cache: " + authenticator);
+            }
+        }
+        if (authRequest == null) {
+            authRequest = request;
         }
         return chain.proceed(authRequest);
     }

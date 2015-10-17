@@ -1,5 +1,8 @@
 package com.burgstaller.okhttp;
 
+import android.text.TextUtils;
+
+import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.squareup.okhttp.Authenticator;
 import com.squareup.okhttp.Challenge;
 import com.squareup.okhttp.Request;
@@ -7,6 +10,7 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.net.Proxy;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +18,18 @@ import java.util.Map;
 /**
  * A dispatching authenticator which can be used with multiple auth schemes.
  */
-public class DispatchingAuthenticator implements Authenticator {
+public class DispatchingAuthenticator implements CachingAuthenticator {
     private final Map<String, Authenticator> authenticatorRegistry;
+    private final Map<String, CachingAuthenticator> cachingRegistry;
 
     public DispatchingAuthenticator(Map<String, Authenticator> registry) {
         authenticatorRegistry = registry;
+        cachingRegistry = new HashMap<>();
+        for (Map.Entry<String, Authenticator> entry : authenticatorRegistry.entrySet()) {
+            if (entry.getValue() instanceof CachingAuthenticator) {
+                cachingRegistry.put(entry.getKey(), (CachingAuthenticator) entry.getValue());
+            }
+        }
     }
 
     @Override
@@ -37,6 +48,17 @@ public class DispatchingAuthenticator implements Authenticator {
 
     @Override
     public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
+        return null;
+    }
+
+    @Override
+    public Request authenticateWithState(Request request) throws IOException {
+        for (Map.Entry<String, CachingAuthenticator> authenticatorEntry : cachingRegistry.entrySet()) {
+            final Request authRequest = authenticatorEntry.getValue().authenticateWithState(request);
+            if (authRequest != null) {
+                return authRequest;
+            }
+        }
         return null;
     }
 

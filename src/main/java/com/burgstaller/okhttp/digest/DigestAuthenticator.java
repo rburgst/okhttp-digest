@@ -37,7 +37,7 @@ import java.util.StringTokenizer;
 /**
  * Digest authenticator which is more or less the same code ripped out of Apache HTTP Client 4.3.1.
  */
-public class DigestAuthenticator implements Authenticator {
+public class DigestAuthenticator implements CachingAuthenticator {
 
     public static final String PROXY_AUTH = "Proxy-Authenticate";
     public static final String PROXY_AUTH_RESP = "Proxy-Authorization";
@@ -149,6 +149,12 @@ public class DigestAuthenticator implements Authenticator {
         parseChallenge(header, 7, header.length() - 7);
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
+
+        return  authenticateWithState(response.request());
+    }
+
+    @Override
+    public Request authenticateWithState(Request request) throws IOException {
         final String realm = parameters.get("realm");
         if (realm == null) {
             Log.e(TAG, "missing realm in challenge");
@@ -158,15 +164,17 @@ public class DigestAuthenticator implements Authenticator {
             throw new IllegalArgumentException("missing nonce in challenge");
         }
         // Add method name and request-URI to the parameter map
-        final Request request = response.request();
-        getParameters().put("methodname", request.method());
-        getParameters().put("uri", request.uri().toASCIIString());
+        final String method = request.method();
+        final String uri = request.uri().toASCIIString();
+        getParameters().put("methodname", method);
+        getParameters().put("uri", uri);
         final String charset = getParameter("charset");
         if (charset == null) {
-            getParameters().put("charset", getCredentialsCharset(request));
+            String credentialsCharset = getCredentialsCharset(request);
+            getParameters().put("charset", credentialsCharset);
         }
-        final NameValuePair digestHeader = createDigestHeader(credentials, response.request());
-        return response.request().newBuilder()
+        final NameValuePair digestHeader = createDigestHeader(credentials, request);
+        return request.newBuilder()
                 .header(digestHeader.getName(), digestHeader.getValue())
                 .build();
     }

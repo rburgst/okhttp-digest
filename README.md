@@ -9,7 +9,7 @@ ported from Apache Http Client.
         final DigestAuthenticator authenticator = new DigestAuthenticator();
         authenticator.setCredentials(new Credentials("username", "pass"));
 
-        final Map<String, String> authCache = new ConcurrentHashMap<>();
+        final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
         client.interceptors().add(new AuthenticationCacheInterceptor(authCache));
         client.setAuthenticator(new CachingAuthenticatorDecorator(authenticator, authCache));
 
