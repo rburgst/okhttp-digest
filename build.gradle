@@ -21,6 +21,13 @@ group = "com.burgstaller"
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
+repositories {
+    mavenLocal()
+    jcenter()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
 
 
 android {
@@ -42,7 +49,7 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp:okhttp:2.5.0'
+    compile 'com.squareup.okhttp:okhttp:2.6.0-SNAPSHOT'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
     testCompile 'junit:junit:4.12'
 }
