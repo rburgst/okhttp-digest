@@ -123,7 +123,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     protected void parseChallenge(
             final String buffer, int pos, int len) {
 
-        BasicHeaderValueParser parser = BasicHeaderValueParser.DEFAULT;
+        BasicHeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
         ParserCursor cursor = new ParserCursor(pos, buffer.length());
         CharArrayBuffer buf = new CharArrayBuffer(len);
         buf.append(buffer);
@@ -142,15 +142,22 @@ public class DigestAuthenticator implements CachingAuthenticator {
     @Override
     public Request authenticate(Proxy proxy, Response response) throws IOException {
 
-        String header = response.header("WWW-Authenticate");
-        if (!header.startsWith("Digest")) {
-            throw new IllegalArgumentException("unsupported auth scheme: " + header);
-        }
+        String header = findDigestHeader(response);
         parseChallenge(header, 7, header.length() - 7);
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
 
         return  authenticateWithState(response.request());
+    }
+
+    private String findDigestHeader(Response response) {
+        final List<String> headers = response.headers("WWW-Authenticate");
+        for (String header : headers) {
+            if (header.startsWith("Digest")) {
+                return header;
+            }
+        }
+        throw new IllegalArgumentException("unsupported auth scheme: " + headers);
     }
 
     @Override
@@ -359,7 +366,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
         buffer.append("Digest ");
 
-        final List<NameValuePair> params = new ArrayList<NameValuePair>(20);
+        final List<NameValuePair> params = new ArrayList<>(20);
         params.add(new BasicNameValuePair("username", uname));
         params.add(new BasicNameValuePair("realm", realm));
         params.add(new BasicNameValuePair("nonce", nonce));
@@ -413,8 +420,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     private byte[] getBytes(final String s, final String charset) {
         try {
-            final byte[] bytes = s.getBytes(charset);
-            return bytes;
+            return s.getBytes(charset);
         } catch (UnsupportedEncodingException e) {
             // try again with default encoding
             return s.getBytes();
