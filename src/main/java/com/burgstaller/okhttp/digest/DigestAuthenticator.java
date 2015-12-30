@@ -427,7 +427,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             return s.getBytes();
         }
     }
-    
+
     public static byte[] getAsciiBytes(String data) {
         if(data == null) {
             throw new IllegalArgumentException("Parameter may not be null");

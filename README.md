@@ -46,5 +46,5 @@ work:
 ## Use via gradle
 
 ```groovy
-compile 'com.burgstaller:okhttp-digest:0.5'
+compile 'com.burgstaller:okhttp-digest:0.6'
 ```
