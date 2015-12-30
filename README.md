@@ -42,6 +42,7 @@ work:
 ```
 
 [ ![Download](https://api.bintray.com/packages/rburgst/android/okhttp-digest/images/download.svg) ](https://bintray.com/rburgst/android/okhttp-digest/_latestVersion)
+[![Build Status](https://snap-ci.com/rburgst/okhttp-digest/branch/master/build_image)](https://snap-ci.com/rburgst/okhttp-digest/branch/master)
 
 ## Use via gradle
 
