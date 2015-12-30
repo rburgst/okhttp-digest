@@ -1,7 +1,5 @@
 package com.burgstaller.okhttp;
 
-import android.text.TextUtils;
-
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.squareup.okhttp.Authenticator;
 import com.squareup.okhttp.Challenge;
@@ -10,7 +8,6 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.net.Proxy;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

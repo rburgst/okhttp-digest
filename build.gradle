@@ -15,11 +15,14 @@ plugins {
     id "com.jfrog.bintray" version "1.3.1"
 }
 
-group = "com.burgstaller"
-
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven'
+
+
+group = "com.burgstaller"
+archivesBaseName = 'okhttp-digest'
 
 repositories {
     mavenLocal()
@@ -29,10 +32,9 @@ repositories {
     }
 }
 
-
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion '23.0.2'
 
     defaultConfig {
         minSdkVersion 9
@@ -49,7 +51,7 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp:okhttp:2.6.0-SNAPSHOT'
+    compile 'com.squareup.okhttp:okhttp:2.7.0'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
     testCompile 'junit:junit:4.12'
 }
@@ -63,6 +65,7 @@ if (!hasProperty('bintray_user')) {
         bintray_api_key = "undef"
     }
 }
+
 bintray {
     user = property('bintray_user')
     key = property('bintray_api_key')
@@ -80,7 +83,6 @@ bintray {
         publicDownloadNumbers = true
     }
 }
-
 
 install {
     repositories.mavenInstaller {
@@ -112,6 +114,15 @@ install {
     }
 }
 
+android.libraryVariants.all  { variant ->
+    def name = variant.buildType.name
+    if (!name.equals("debug")) {
+        def task = project.tasks.create  "jar${name.capitalize()}", Jar
+        task.dependsOn variant.javaCompile
+        task.from  variant.javaCompile.destinationDir
+        artifacts.add('archives', task);
+    }
+}
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -121,12 +132,15 @@ task sourcesJar(type: Jar) {
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.compile
+    logger.quiet("javadoc classpath " + classpath.getAsPath())
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
 artifacts {
     archives javadocJar
     archives sourcesJar

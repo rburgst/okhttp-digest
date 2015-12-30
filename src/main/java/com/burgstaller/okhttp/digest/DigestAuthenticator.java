@@ -12,7 +12,6 @@ import com.burgstaller.okhttp.digest.fromhttpclient.HttpEntityDigester;
 import com.burgstaller.okhttp.digest.fromhttpclient.NameValuePair;
 import com.burgstaller.okhttp.digest.fromhttpclient.ParserCursor;
 import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmException;
-import com.squareup.okhttp.Authenticator;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
@@ -147,7 +146,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
 
-        return  authenticateWithState(response.request());
+        return authenticateWithState(response.request());
     }
 
     private String findDigestHeader(Response response) {
@@ -404,7 +403,9 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
 
     /**
-     * @since 4.3
+     * Returns the charset used for the credentials.
+     *
+     * @return the credentials charset
      */
     public Charset getCredentialsCharset() {
         return credentialsCharset;
@@ -426,6 +427,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             return s.getBytes();
         }
     }
+    
     public static byte[] getAsciiBytes(String data) {
         if(data == null) {
             throw new IllegalArgumentException("Parameter may not be null");

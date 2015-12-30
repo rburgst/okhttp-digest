@@ -15,7 +15,7 @@ public interface CachingAuthenticator extends Authenticator {
      *
      * @param request the new request to be authenticated.
      * @return the modified request with updated auth headers.
-     * @throws IOException
+     * @throws IOException in case of a communication problem
      */
     Request authenticateWithState(Request request) throws IOException;
 }
