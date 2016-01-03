@@ -1,12 +1,13 @@
 package com.burgstaller.okhttp;
 
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
-import com.squareup.okhttp.Authenticator;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+
+import okhttp3.Authenticator;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
 import java.io.IOException;
-import java.net.Proxy;
 import java.util.Map;
 
 /**
@@ -24,19 +25,14 @@ public class CachingAuthenticatorDecorator implements Authenticator {
     }
 
     @Override
-    public Request authenticate(Proxy proxy, Response response) throws IOException {
-        Request authenticated = innerAuthenticator.authenticate(proxy, response);
+    public Request authenticate(Route route, Response response) throws IOException {
+        Request authenticated = innerAuthenticator.authenticate(route, response);
         if (authenticated != null) {
             String authorizationValue = authenticated.header("Authorization");
             if (authorizationValue != null && innerAuthenticator instanceof CachingAuthenticator) {
-                authCache.put(authenticated.url().getHost(), (CachingAuthenticator) innerAuthenticator);
+                authCache.put(authenticated.url().host(), (CachingAuthenticator) innerAuthenticator);
             }
         }
         return authenticated;
-    }
-
-    @Override
-    public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
-        return innerAuthenticator.authenticateProxy(proxy, response);
     }
 }

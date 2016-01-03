@@ -12,14 +12,14 @@ import com.burgstaller.okhttp.digest.fromhttpclient.HttpEntityDigester;
 import com.burgstaller.okhttp.digest.fromhttpclient.NameValuePair;
 import com.burgstaller.okhttp.digest.fromhttpclient.ParserCursor;
 import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmException;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import okhttp3.Headers;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.Route;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.Proxy;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -139,8 +139,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     }
 
     @Override
-    public Request authenticate(Proxy proxy, Response response) throws IOException {
-
+    public Request authenticate(Route route, Response response) throws IOException {
         String header = findDigestHeader(response);
         parseChallenge(header, 7, header.length() - 7);
         // first copy all request headers to our params array
@@ -171,7 +170,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
         // Add method name and request-URI to the parameter map
         final String method = request.method();
-        final String uri = request.uri().toASCIIString();
+        final String uri = request.url().toString();
         getParameters().put("methodname", method);
         getParameters().put("uri", uri);
         final String charset = getParameter("charset");
@@ -193,11 +192,6 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     private String getParameter(String key) {
         return parameters.get(key);
-    }
-
-    @Override
-    public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
-        return null;
     }
 
     /**

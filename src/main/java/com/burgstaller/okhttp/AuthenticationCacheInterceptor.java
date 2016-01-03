@@ -3,9 +3,9 @@ package com.burgstaller.okhttp;
 import android.util.Log;
 
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class AuthenticationCacheInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         final Request request = chain.request();
-        String host = request.uri().getHost();
+        String host = request.url().host();
         CachingAuthenticator authenticator = authCache.get(host);
         Request authRequest = null;
         if (authenticator != null) {
