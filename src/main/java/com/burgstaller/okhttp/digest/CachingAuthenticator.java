@@ -1,7 +1,7 @@
 package com.burgstaller.okhttp.digest;
 
-import com.squareup.okhttp.Authenticator;
-import com.squareup.okhttp.Request;
+import okhttp3.Authenticator;
+import okhttp3.Request;
 
 import java.io.IOException;
 

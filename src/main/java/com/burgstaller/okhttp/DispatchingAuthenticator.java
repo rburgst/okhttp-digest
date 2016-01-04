@@ -1,13 +1,14 @@
 package com.burgstaller.okhttp;
 
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
-import com.squareup.okhttp.Authenticator;
-import com.squareup.okhttp.Challenge;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+
+import okhttp3.Authenticator;
+import okhttp3.Challenge;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
 import java.io.IOException;
-import java.net.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,22 +31,17 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
     }
 
     @Override
-    public Request authenticate(Proxy proxy, Response response) throws IOException {
+    public Request authenticate(Route route, Response response) throws IOException {
         List<Challenge> challenges = response.challenges();
         if (!challenges.isEmpty()) {
             for (Challenge challenge : challenges) {
-                Authenticator authenticator = authenticatorRegistry.get(challenge.getScheme());
+                Authenticator authenticator = authenticatorRegistry.get(challenge.scheme());
                 if (authenticator != null) {
-                    return authenticator.authenticate(proxy, response);
+                    return authenticator.authenticate(route, response);
                 }
             }
         }
         throw new IllegalArgumentException("unsupported auth scheme " + challenges);
-    }
-
-    @Override
-    public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
-        return null;
     }
 
     @Override
