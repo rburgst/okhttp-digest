@@ -2,3 +2,4 @@
 gradle.properties
 local.properties
 release.md
+localrepo.gradle
