@@ -24,21 +24,23 @@ If you want to support multiple authentication schemes (including auth caching) 
 work:
 
 ```java
-        client = new OkHttpClient();
-        final Map<String, String> authCache = new ConcurrentHashMap<>();
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
 
-        Credentials credentials = new Credentials("username", "pass");
+            Credentials credentials = new Credentials("username", "pass");
+            final BasicAuthenticator basicAuthenticator = new BasicAuthenticator(credentials);
+            final DigestAuthenticator digestAuthenticator = new DigestAuthenticator(credentials);
 
-        final BasicAuthenticator basicAuthenticator = new BasicAuthenticator(credentials);
-        final DigestAuthenticator digestAuthenticator = new DigestAuthenticator(credentials);
+            DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
+                    .with("Digest", digestAuthenticator)
+                    .with("Basic", basicAuthenticator)
+                    .build();
 
-        DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
-                .with("Digest", digestAuthenticator)
-                .with("Basic", basicAuthenticator)
-                .build();
-
-        client.interceptors().add(new AuthenticationCacheInterceptor(authCache));
-        client.setAuthenticator(new CachingAuthenticatorDecorator(authenticator, authCache));
+            client = builder
+                    .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
+                    .addInterceptor(new AuthenticationCacheInterceptor(authCache))
+                    .addNetworkInterceptor(logger)
+                    .build();
 ```
 
 [ ![Download](https://api.bintray.com/packages/rburgst/android/okhttp-digest/images/download.svg) ](https://bintray.com/rburgst/android/okhttp-digest/_latestVersion)
@@ -47,5 +49,5 @@ work:
 ## Use via gradle
 
 ```groovy
-compile 'com.burgstaller:okhttp-digest:0.6'
+compile 'com.burgstaller:okhttp-digest:0.7'
 ```
