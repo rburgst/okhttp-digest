@@ -31,9 +31,10 @@ work:
             final BasicAuthenticator basicAuthenticator = new BasicAuthenticator(credentials);
             final DigestAuthenticator digestAuthenticator = new DigestAuthenticator(credentials);
 
+            // note that all auth schemes should be registered as lowercase!
             DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
-                    .with("Digest", digestAuthenticator)
-                    .with("Basic", basicAuthenticator)
+                    .with("digest", digestAuthenticator)
+                    .with("basic", basicAuthenticator)
                     .build();
 
             client = builder

@@ -35,7 +35,11 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
         List<Challenge> challenges = response.challenges();
         if (!challenges.isEmpty()) {
             for (Challenge challenge : challenges) {
-                Authenticator authenticator = authenticatorRegistry.get(challenge.scheme());
+                final String scheme = challenge.scheme();
+                Authenticator authenticator = null;
+                if (scheme != null) {
+                    authenticator = authenticatorRegistry.get(scheme.toLowerCase());
+                }
                 if (authenticator != null) {
                     return authenticator.authenticate(route, response);
                 }
