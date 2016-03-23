@@ -20,7 +20,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
     private final Map<String, Authenticator> authenticatorRegistry;
     private final Map<String, CachingAuthenticator> cachingRegistry;
 
-    public DispatchingAuthenticator(Map<String, Authenticator> registry) {
+    private DispatchingAuthenticator(Map<String, Authenticator> registry) {
         authenticatorRegistry = registry;
         cachingRegistry = new HashMap<>();
         for (Map.Entry<String, Authenticator> entry : authenticatorRegistry.entrySet()) {
@@ -63,7 +63,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
         Map<String, Authenticator> registry = new HashMap<>();
 
         public Builder with(String scheme, Authenticator authenticator) {
-            registry.put(scheme, authenticator);
+            registry.put(scheme.toLowerCase(), authenticator);
             return this;
         }
 

@@ -1,3 +1,11 @@
+## v1.1
+
+* Upgraded to `okhttp 3.2.0`
+* Now the authentication scheme is compared via lowercase text. This should fix servers that send
+  auth challenges in different upper/lowercase form (e.g. some servers send BASIC auth scheme).
+* Now also BASIC auth is cached to prevent extra roundtrips.
+
+
 ## v1.0
 
 * Upgraded `okhttp` dependency to `3.0.1`. You now need to setup your `OkHttpClient` via `OkHttpClient.Builder`,
