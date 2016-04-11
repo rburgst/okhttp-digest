@@ -1,3 +1,8 @@
+## v1.2
+
+* Fixed issue where wrong password would lead to ProtocolException (too many retries)
+
+
 ## v1.1
 
 * Upgraded to `okhttp 3.2.0`

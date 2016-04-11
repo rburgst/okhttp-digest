@@ -168,6 +168,12 @@ public class DigestAuthenticator implements CachingAuthenticator {
         if (getParameter("nonce") == null) {
             throw new IllegalArgumentException("missing nonce in challenge");
         }
+        // prevent infinite loops when the password is wrong
+        final String authorizationHeader = request.header("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Digest")) {
+            Log.w(TAG, "previous digest authentication failed, returning null");
+            return null;
+        }
         // Add method name and request-URI to the parameter map
         final String method = request.method();
         final String uri = request.url().toString();
