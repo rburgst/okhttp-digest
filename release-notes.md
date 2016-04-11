@@ -1,3 +1,7 @@
+## v1.3
+
+* also fixed HTTP basic authenticator to prevent ProtocolExceptions for wrong password
+
 ## v1.2
 
 * Fixed issue where wrong password would lead to ProtocolException (too many retries)
