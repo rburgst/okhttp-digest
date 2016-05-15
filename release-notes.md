@@ -1,3 +1,7 @@
+## v1.4
+
+* Fixes #8 where a changing server nonce would cause the digest authentication to try again
+
 ## v1.3
 
 * also fixed HTTP basic authenticator to prevent ProtocolExceptions for wrong password

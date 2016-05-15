@@ -12,6 +12,7 @@ import com.burgstaller.okhttp.digest.fromhttpclient.HttpEntityDigester;
 import com.burgstaller.okhttp.digest.fromhttpclient.NameValuePair;
 import com.burgstaller.okhttp.digest.fromhttpclient.ParserCursor;
 import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmException;
+
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -120,7 +121,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
 
     protected void parseChallenge(
-            final String buffer, int pos, int len) {
+            final String buffer, int pos, int len, Map<String, String> params) {
 
         BasicHeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
         ParserCursor cursor = new ParserCursor(pos, buffer.length());
@@ -132,7 +133,6 @@ public class DigestAuthenticator implements CachingAuthenticator {
             throw new IllegalArgumentException("Authentication challenge is empty");
         }
 
-        Map<String, String> params = getParameters();
         for (HeaderElement element : elements) {
             params.put(element.getName(), element.getValue());
         }
@@ -140,22 +140,22 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
-        String header = findDigestHeader(response);
-        parseChallenge(header, 7, header.length() - 7);
+        String header = findDigestHeader(response.headers());
+        parseChallenge(header, 7, header.length() - 7, parameters);
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
 
         return authenticateWithState(response.request());
     }
 
-    private String findDigestHeader(Response response) {
-        final List<String> headers = response.headers("WWW-Authenticate");
-        for (String header : headers) {
+    private String findDigestHeader(Headers headers) {
+        final List<String> authHeaders = headers.values("WWW-Authenticate");
+        for (String header : authHeaders) {
             if (header.startsWith("Digest")) {
                 return header;
             }
         }
-        throw new IllegalArgumentException("unsupported auth scheme: " + headers);
+        throw new IllegalArgumentException("unsupported auth scheme: " + authHeaders);
     }
 
     @Override
@@ -165,13 +165,13 @@ public class DigestAuthenticator implements CachingAuthenticator {
             Log.e(TAG, "missing realm in challenge");
             return null;
         }
-        if (getParameter("nonce") == null) {
+        final String nonce = getParameter("nonce");
+        if (nonce == null) {
             throw new IllegalArgumentException("missing nonce in challenge");
         }
-        // prevent infinite loops when the password is wrong
-        final String authorizationHeader = request.header("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Digest")) {
-            Log.w(TAG, "previous digest authentication failed, returning null");
+        if (havePreviousDigestAuthorizationWithSameNonce(request, nonce)) {
+            // prevent infinite loops when the password is wrong
+            Log.w(TAG, "previous digest authentication with same nonce failed, returning null");
             return null;
         }
         // Add method name and request-URI to the parameter map
@@ -188,6 +188,31 @@ public class DigestAuthenticator implements CachingAuthenticator {
         return request.newBuilder()
                 .header(digestHeader.getName(), digestHeader.getValue())
                 .build();
+    }
+
+    /**
+     * Checks if the previous request had a digest authorization and its nonce matches to the
+     * current server nonce. If that is the case, then we would simply attempt the same authentication
+     * again and would fail again and again, ...
+     *
+     * @param request the previous request
+     * @param nonce   the current server nonce.
+     * @return {@code true} in case the previous request already was authenticating to the current
+     * server nonce.
+     */
+    private boolean havePreviousDigestAuthorizationWithSameNonce(Request request, String nonce) {
+        final String previousAuthorizationHeader = request.header("Authorization");
+
+        if (previousAuthorizationHeader != null && previousAuthorizationHeader.startsWith("Digest")) {
+            // check if the previous nonce is the same as the current nonce
+            Map<String, String> previousParameters = new HashMap<>();
+            parseChallenge(previousAuthorizationHeader, 7, previousAuthorizationHeader.length() - 7, previousParameters);
+            final String previousNonce = previousParameters.get("nonce");
+            if (nonce.equals(previousNonce)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void copyHeaderMap(Headers headers, Map<String, String> dest) {
@@ -429,7 +454,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     }
 
     public static byte[] getAsciiBytes(String data) {
-        if(data == null) {
+        if (data == null) {
             throw new IllegalArgumentException("Parameter may not be null");
         } else {
             try {

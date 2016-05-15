@@ -84,4 +84,29 @@ public class DigestAuthenticatorTest {
         // then
         assertThat(result, is(nullValue()));
     }
+
+    @Test
+    public void testAuthenticate_withDifferentNonce_shouldRetry() throws IOException {
+        // given
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", uri=\"http://www\\.google\\.com/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .addHeader("WWW-Authenticate",
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
+                .addHeader("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
+                .build();
+
+        // when
+        final Request authenticated = authenticator.authenticate(null, response);
+
+        // then
+        assertThat(authenticated.header("Authorization"),
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", uri=\"http://www\\.google\\.com/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+    }
 }
