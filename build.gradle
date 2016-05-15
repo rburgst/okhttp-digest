@@ -15,8 +15,9 @@ plugins {
 
 
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
-
+if (new File("./gradle/localrepo.gradle").exists()) {
+    apply from: "./gradle/localrepo.gradle"
+}
 
 group = "com.burgstaller"
 archivesBaseName = 'okhttp-digest'
@@ -81,36 +82,6 @@ bintray {
         licenses = ['Apache-2.0']
         labels = ['aar', 'android', 'okhttp']
         publicDownloadNumbers = true
-    }
-}
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name 'digest authentication for okhttp'
-                url siteUrl
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'rburgst'
-                        name 'Rainer Burgstaller'
-                        email 'rburgst@gmail.com'
-                    }
-                }
-                scm {
-                    connection 'https://github.com/rburgst/okhttp-digest.git'
-                    developerConnection 'https://github.com/rburgst/okhttp-digest.git'
-                    url siteUrl
-                }
-            }
-        }
     }
 }
 
