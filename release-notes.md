@@ -1,3 +1,7 @@
+## v1.5
+
+* Fixed #10: uri parameter in authentication should not contain the hostname
+
 ## v1.4
 
 * Fixes #8 where a changing server nonce would cause the digest authentication to try again
