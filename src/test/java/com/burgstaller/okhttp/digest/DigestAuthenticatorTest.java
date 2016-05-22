@@ -11,6 +11,7 @@ import java.io.IOException;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class DigestAuthenticatorTest {
@@ -38,7 +39,29 @@ public class DigestAuthenticatorTest {
         Request authenticated = authenticator.authenticate(null, response);
 
         assertThat(authenticated.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"http://www\\.google\\.com/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+    }
+
+
+
+    @Test
+    public void testAuthenticate__withUriPathAndParameters() throws Exception {
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com/path/to/resource?parameter=value&parameter2=value2")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .header("WWW-Authenticate",
+                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                .build();
+        Request authenticated = authenticator.authenticate(null, response);
+
+        String authHeader = authenticated.header("Authorization");
+        assertThat(authHeader,
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"/path/to/resource\\?parameter=value&parameter2=value2\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
     @Test
@@ -58,7 +81,7 @@ public class DigestAuthenticatorTest {
         Request authenticated = authenticator.authenticate(null, response);
 
         assertThat(authenticated.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"http://www\\.google\\.com/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
     @Test
@@ -66,7 +89,7 @@ public class DigestAuthenticatorTest {
         // given
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
-                .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"http://www\\.google\\.com/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -90,7 +113,7 @@ public class DigestAuthenticatorTest {
         // given
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
-                .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", uri=\"http://www\\.google\\.com/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -107,6 +130,6 @@ public class DigestAuthenticatorTest {
 
         // then
         assertThat(authenticated.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", uri=\"http://www\\.google\\.com/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 }

@@ -18,6 +18,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
+import okhttp3.internal.http.RequestLine;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -176,7 +177,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
         // Add method name and request-URI to the parameter map
         final String method = request.method();
-        final String uri = request.url().toString();
+        final String uri = RequestLine.requestPath(request.url());
         getParameters().put("methodname", method);
         getParameters().put("uri", uri);
         final String charset = getParameter("charset");
