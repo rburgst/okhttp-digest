@@ -334,10 +334,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             a2 = method + ':' + uri;
         } else if (qop == QOP_AUTH_INT) {
             // Method ":" digest-uri-value ":" H(entity-body)
-            RequestBody entity = null;
-            if (request.body() != null) {
-                entity = request.body();
-            }
+            RequestBody entity = request.body();
             if (entity != null) {
                 // If the entity is not repeatable, try falling back onto QOP_AUTH
                 if (qopset.contains("auth")) {
@@ -348,11 +345,11 @@ public class DigestAuthenticator implements CachingAuthenticator {
                             "a non-repeatable entity");
                 }
             } else {
+                // code straight from
+                // https://github.com/apache/httpclient/blob/4.3.x/httpclient/src/main/java/org/apache/http/impl/auth/DigestScheme.java#L363
+                // not sure if this will actually work with an empty body.
                 final HttpEntityDigester entityDigester = new HttpEntityDigester(digester);
                 try {
-                    if (entity != null) {
-                        entity.writeTo(entityDigester);
-                    }
                     entityDigester.close();
                 } catch (final IOException ex) {
                     throw new AuthenticationException("I/O error reading entity content", ex);
