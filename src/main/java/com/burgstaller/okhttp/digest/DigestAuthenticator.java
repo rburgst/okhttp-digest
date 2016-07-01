@@ -1,8 +1,6 @@
 
 package com.burgstaller.okhttp.digest;
 
-import android.util.Log;
-
 import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueFormatter;
 import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueParser;
 import com.burgstaller.okhttp.digest.fromhttpclient.BasicNameValuePair;
@@ -19,6 +17,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
 import okhttp3.internal.http.RequestLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -44,6 +44,8 @@ public class DigestAuthenticator implements CachingAuthenticator {
     public static final String PROXY_AUTH_RESP = "Proxy-Authorization";
     public static final String WWW_AUTH = "WWW-Authenticate";
     public static final String WWW_AUTH_RESP = "Authorization";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DigestAuthenticator.class);
 
     private static final String CREDENTIAL_CHARSET = "http.auth.credential-charset";
     private static final int QOP_UNKNOWN = -1;
@@ -163,7 +165,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     public Request authenticateWithState(Request request) throws IOException {
         final String realm = parameters.get("realm");
         if (realm == null) {
-            Log.e(TAG, "missing realm in challenge");
+            LOGGER.error("missing realm in challenge");
             return null;
         }
         final String nonce = getParameter("nonce");

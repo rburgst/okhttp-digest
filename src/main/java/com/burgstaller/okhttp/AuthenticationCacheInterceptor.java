@@ -1,14 +1,16 @@
 package com.burgstaller.okhttp;
 
-import android.util.Log;
-
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
-import okhttp3.Interceptor;
-import okhttp3.Request;
-import okhttp3.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * An HTTP Request interceptor that adds previous auth headers in to the same host. This enables the
@@ -17,6 +19,8 @@ import java.util.Map;
 public class AuthenticationCacheInterceptor implements Interceptor {
     private static final String TAG = "AuthInt";
     private final Map<String, CachingAuthenticator> authCache;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationCacheInterceptor.class);
+
 
     public AuthenticationCacheInterceptor(Map<String, CachingAuthenticator> authCache) {
         this.authCache = authCache;
@@ -31,7 +35,7 @@ public class AuthenticationCacheInterceptor implements Interceptor {
         if (authenticator != null) {
             authRequest = authenticator.authenticateWithState(request);
             if (authRequest != null) {
-                Log.d(TAG, "reusing auth from cache: " + authenticator);
+                LOGGER.debug("reusing auth from cache: {}", authenticator);
             }
         }
         if (authRequest == null) {
