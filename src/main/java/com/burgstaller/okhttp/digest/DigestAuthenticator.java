@@ -174,7 +174,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
         if (havePreviousDigestAuthorizationWithSameNonce(request, nonce)) {
             // prevent infinite loops when the password is wrong
-            Log.w(TAG, "previous digest authentication with same nonce failed, returning null");
+            LOGGER.warn("previous digest authentication with same nonce failed, returning null");
             return null;
         }
         // Add method name and request-URI to the parameter map
