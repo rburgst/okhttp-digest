@@ -6,8 +6,7 @@ ported from Apache Http Client.
 
 ```java
         client = new OkHttpClient();
-        final DigestAuthenticator authenticator = new DigestAuthenticator();
-        authenticator.setCredentials(new Credentials("username", "pass"));
+        final DigestAuthenticator authenticator = new DigestAuthenticator(new Credentials("username", "pass"));
 
         final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
         client.interceptors().add(new AuthenticationCacheInterceptor(authCache));
