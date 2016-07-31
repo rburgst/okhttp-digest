@@ -2,6 +2,7 @@
  
 * use slf4j rather than android logging
 * Fixed #12: only retry failed authentication if the nonce was stale
+* upgraded to okhttp 3.4.1
 
 ## v1.5
 
