@@ -17,6 +17,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
 import okhttp3.internal.http.RequestLine;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,7 +173,10 @@ public class DigestAuthenticator implements CachingAuthenticator {
         if (nonce == null) {
             throw new IllegalArgumentException("missing nonce in challenge");
         }
-        if (havePreviousDigestAuthorizationWithSameNonce(request, nonce)) {
+        String stale = parameters.get("stale");
+        boolean isStale = "true".equalsIgnoreCase(stale);
+
+        if (havePreviousDigestAuthorizationAndShouldAbort(request, nonce, isStale)) {
             // prevent infinite loops when the password is wrong
             LOGGER.warn("previous digest authentication with same nonce failed, returning null");
             return null;
@@ -200,20 +204,16 @@ public class DigestAuthenticator implements CachingAuthenticator {
      *
      * @param request the previous request
      * @param nonce   the current server nonce.
+     * @param isStale when {@code true} then the server told us that the nonce was stale.
      * @return {@code true} in case the previous request already was authenticating to the current
      * server nonce.
      */
-    private boolean havePreviousDigestAuthorizationWithSameNonce(Request request, String nonce) {
+    private boolean havePreviousDigestAuthorizationAndShouldAbort(Request request, String nonce, boolean isStale) {
         final String previousAuthorizationHeader = request.header("Authorization");
 
         if (previousAuthorizationHeader != null && previousAuthorizationHeader.startsWith("Digest")) {
-            // check if the previous nonce is the same as the current nonce
-            Map<String, String> previousParameters = new HashMap<>();
-            parseChallenge(previousAuthorizationHeader, 7, previousAuthorizationHeader.length() - 7, previousParameters);
-            final String previousNonce = previousParameters.get("nonce");
-            if (nonce.equals(previousNonce)) {
-                return true;
-            }
+            // only retry when the previous auth was stale
+            return !isStale;
         }
         return false;
     }

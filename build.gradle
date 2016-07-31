@@ -53,7 +53,7 @@ android {
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.6'
-    compile 'com.squareup.okhttp3:okhttp:3.3.1'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
     testCompile 'junit:junit:4.12'
 }

@@ -1,3 +1,8 @@
+## v1.6
+ 
+* use slf4j rather than android logging
+* Fixed #12: only retry failed authentication if the nonce was stale
+
 ## v1.5
 
 * Fixed #10: uri parameter in authentication should not contain the hostname
