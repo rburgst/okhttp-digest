@@ -19,7 +19,6 @@ import okhttp3.Response;
 public class AuthenticationCacheInterceptor implements Interceptor {
     private static final String TAG = "AuthInt";
     private final Map<String, CachingAuthenticator> authCache;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationCacheInterceptor.class);
 
 
     public AuthenticationCacheInterceptor(Map<String, CachingAuthenticator> authCache) {
@@ -34,9 +33,6 @@ public class AuthenticationCacheInterceptor implements Interceptor {
         Request authRequest = null;
         if (authenticator != null) {
             authRequest = authenticator.authenticateWithState(request);
-            if (authRequest != null) {
-                LOGGER.debug("reusing auth from cache: {}", authenticator);
-            }
         }
         if (authRequest == null) {
             authRequest = request;
