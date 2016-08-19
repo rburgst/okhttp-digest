@@ -11,17 +11,6 @@ import com.burgstaller.okhttp.digest.fromhttpclient.NameValuePair;
 import com.burgstaller.okhttp.digest.fromhttpclient.ParserCursor;
 import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmException;
 
-import okhttp3.Headers;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.Route;
-import okhttp3.internal.http.RequestLine;
-import okhttp3.internal.platform.Platform;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -36,6 +25,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import okhttp3.Headers;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.Route;
+import okhttp3.internal.http.RequestLine;
+import okhttp3.internal.platform.Platform;
 
 /**
  * Digest authenticator which is more or less the same code ripped out of Apache HTTP Client 4.3.1.

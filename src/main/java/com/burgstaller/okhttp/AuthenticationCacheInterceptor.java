@@ -14,9 +14,7 @@ import okhttp3.Response;
  * client to reduce the number of 401 auth request/response cycles.
  */
 public class AuthenticationCacheInterceptor implements Interceptor {
-    private static final String TAG = "AuthInt";
     private final Map<String, CachingAuthenticator> authCache;
-
 
     public AuthenticationCacheInterceptor(Map<String, CachingAuthenticator> authCache) {
         this.authCache = authCache;
