@@ -2,9 +2,6 @@ package com.burgstaller.okhttp;
 
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Map;
 
