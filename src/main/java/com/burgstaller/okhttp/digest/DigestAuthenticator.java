@@ -17,6 +17,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
 import okhttp3.internal.http.RequestLine;
+import okhttp3.internal.platform.Platform;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +46,6 @@ public class DigestAuthenticator implements CachingAuthenticator {
     public static final String PROXY_AUTH_RESP = "Proxy-Authorization";
     public static final String WWW_AUTH = "WWW-Authenticate";
     public static final String WWW_AUTH_RESP = "Authorization";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DigestAuthenticator.class);
 
     private static final String CREDENTIAL_CHARSET = "http.auth.credential-charset";
     private static final int QOP_UNKNOWN = -1;
@@ -166,7 +165,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     public Request authenticateWithState(Request request) throws IOException {
         final String realm = parameters.get("realm");
         if (realm == null) {
-            LOGGER.error("missing realm in challenge");
+            Platform.get().log(Platform.WARN, "missing realm in challenge", null);
             return null;
         }
         final String nonce = getParameter("nonce");
@@ -178,7 +177,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
         if (havePreviousDigestAuthorizationAndShouldAbort(request, nonce, isStale)) {
             // prevent infinite loops when the password is wrong
-            LOGGER.warn("previous digest authentication with same nonce failed, returning null");
+            Platform.get().log(Platform.WARN, "previous digest authentication with same nonce failed, returning null", null);
             return null;
         }
         // Add method name and request-URI to the parameter map
