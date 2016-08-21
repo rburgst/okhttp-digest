@@ -53,7 +53,8 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
             return false;
         } else {
             BasicNameValuePair that = (BasicNameValuePair)object;
-            return this.name.equals(that.name) && Objects.equals(this.value, that.value);
+            return this.name.equals(that.name) && (this.value == that.value) ||
+                (this.value != null && this.value.equals(that.value));
         }
     }
 

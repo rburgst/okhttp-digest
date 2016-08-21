@@ -11,6 +11,7 @@ import okhttp3.Route;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -38,7 +39,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
                 final String scheme = challenge.scheme();
                 Authenticator authenticator = null;
                 if (scheme != null) {
-                    authenticator = authenticatorRegistry.get(scheme.toLowerCase());
+                    authenticator = authenticatorRegistry.get(scheme.toLowerCase(Locale.getDefault()));
                 }
                 if (authenticator != null) {
                     return authenticator.authenticate(route, response);
@@ -63,7 +64,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
         Map<String, Authenticator> registry = new HashMap<>();
 
         public Builder with(String scheme, Authenticator authenticator) {
-            registry.put(scheme.toLowerCase(), authenticator);
+            registry.put(scheme.toLowerCase(Locale.getDefault()), authenticator);
             return this;
         }
 
