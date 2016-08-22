@@ -1,4 +1,5 @@
 /build
+.gradle
 gradle.properties
 local.properties
 release.md
