@@ -32,7 +32,7 @@ public class CachingAuthenticatorDecorator implements Authenticator {
             String authorizationValue = authenticated.header("Authorization");
             if (authorizationValue != null && innerAuthenticator instanceof CachingAuthenticator) {
                 final HttpUrl url = authenticated.url();
-                final String key = url.scheme() + ":" + url.host() + ":" + url.port();
+                final String key = CachingUtils.getCachingKey(url);
                 authCache.put(key, (CachingAuthenticator) innerAuthenticator);
             }
         }

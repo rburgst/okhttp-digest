@@ -25,7 +25,7 @@ public class AuthenticationCacheInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         final Request request = chain.request();
         final HttpUrl url = request.url();
-        final String key = url.scheme() + ":" + url.host() + ":" + url.port();
+        final String key = CachingUtils.getCachingKey(url);
         CachingAuthenticator authenticator = authCache.get(key);
         Request authRequest = null;
         if (authenticator != null) {
