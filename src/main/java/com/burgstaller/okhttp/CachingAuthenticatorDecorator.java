@@ -3,6 +3,7 @@ package com.burgstaller.okhttp;
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 
 import okhttp3.Authenticator;
+import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
@@ -30,7 +31,9 @@ public class CachingAuthenticatorDecorator implements Authenticator {
         if (authenticated != null) {
             String authorizationValue = authenticated.header("Authorization");
             if (authorizationValue != null && innerAuthenticator instanceof CachingAuthenticator) {
-                authCache.put(authenticated.url().host(), (CachingAuthenticator) innerAuthenticator);
+                final HttpUrl url = authenticated.url();
+                final String key = CachingUtils.getCachingKey(url);
+                authCache.put(key, (CachingAuthenticator) innerAuthenticator);
             }
         }
         return authenticated;
