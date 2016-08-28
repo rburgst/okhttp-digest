@@ -1,3 +1,10 @@
+## v1.7
+
+* use okhttp logging rather than slf4j to prevent log warnings when 
+  no slf4j implementation is available
+* removed not needed manifest entries
+* Fixed invalid authentication caching with multiple servers on the same host 
+  
 ## v1.6
  
 * use slf4j rather than android logging
