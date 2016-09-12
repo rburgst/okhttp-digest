@@ -168,7 +168,8 @@ public class DigestAuthenticator implements CachingAuthenticator {
     public Request authenticateWithState(Request request) throws IOException {
         final String realm = parameters.get("realm");
         if (realm == null) {
-            Platform.get().log(Platform.WARN, "missing realm in challenge", null);
+            // missing realm, this would mean that the authenticator is not initialized for this
+            // request. (e.g. if you configured the DispatchingAuthenticator.
             return null;
         }
         final String nonce = getParameter("nonce");

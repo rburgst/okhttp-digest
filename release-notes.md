@@ -1,3 +1,8 @@
+## v1.8
+
+* try to improve multithreaded operation
+* reduce warning log output if used together with BASIC auth
+
 ## v1.7
 
 * use okhttp logging rather than slf4j to prevent log warnings when 
