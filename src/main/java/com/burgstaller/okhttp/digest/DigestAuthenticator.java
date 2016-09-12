@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.Headers;
 import okhttp3.Request;
@@ -61,7 +62,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             'e', 'f'
     };
 
-    Map<String, String> parameters = new HashMap<>();
+    Map<String, String> parameters = new ConcurrentHashMap<>();
     private Charset credentialsCharset = Charset.forName("ASCII");
     private final Credentials credentials;
     private String lastNonce;
@@ -139,11 +140,16 @@ public class DigestAuthenticator implements CachingAuthenticator {
     }
 
     @Override
-    public Request authenticate(Route route, Response response) throws IOException {
+    public synchronized Request authenticate(Route route, Response response) throws IOException {
         String header = findDigestHeader(response.headers());
         parseChallenge(header, 7, header.length() - 7, parameters);
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
+
+        // sanity check for issue #22
+        if (parameters.get("nonce") == null) {
+            throw new IllegalArgumentException("missing nonce in challenge header: " + header);
+        }
 
         return authenticateWithState(response.request());
     }

@@ -42,6 +42,27 @@ public class DigestAuthenticatorTest {
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testAuthenticate__withInvalidWWWAuthHeader__shouldThrowException() throws Exception {
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .header("WWW-Authenticate",
+                        "Digest realm=\"myrealm\", algorithm=MD5, qop=\"auth\"")
+                .build();
+        try {
+            authenticator.authenticate(null, response);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     @Test
     public void testAuthenticate__withUriPathAndParameters() throws Exception {
         Request dummyRequest = new Request.Builder()
