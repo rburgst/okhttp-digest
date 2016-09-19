@@ -1,3 +1,7 @@
+## v1.9
+
+* further enhancements for multithreaded operation
+
 ## v1.8
 
 * try to improve multithreaded operation
