@@ -82,8 +82,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             return MessageDigest.getInstance(digAlg);
         } catch (final Exception e) {
             throw new IllegalArgumentException(
-                    "Unsupported algorithm in HTTP Digest authentication: "
-                            + digAlg);
+                    "Unsupported algorithm in HTTP Digest authentication: " + digAlg, e);
         }
     }
 
@@ -237,7 +236,8 @@ public class DigestAuthenticator implements CachingAuthenticator {
      * @param credentials User credentials
      * @return The digest-response as String.
      */
-    private NameValuePair createDigestHeader(
+//    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("LSC_LITERAL_STRING_COMPARISON")
+    private synchronized NameValuePair createDigestHeader(
             final Credentials credentials,
             final Request request) throws AuthenticationException {
         final String uri = getParameter("uri");
@@ -279,7 +279,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
 
         String digAlg = algorithm;
-        if (digAlg.equalsIgnoreCase("MD5-sess")) {
+        if ("MD5-sess".equalsIgnoreCase(digAlg)) {
             digAlg = "MD5";
         }
 
@@ -287,7 +287,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         try {
             digester = createMessageDigest(digAlg);
         } catch (final UnsupportedDigestAlgorithmException ex) {
-            throw new AuthenticationException("Unsuppported digest algorithm: " + digAlg);
+            throw new AuthenticationException("Unsuppported digest algorithm: " + digAlg, ex);
         }
 
         final String uname = credentials.getUserName();
@@ -313,7 +313,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         a1 = null;
         a2 = null;
         // 3.2.2.2: Calculating digest
-        if (algorithm.equalsIgnoreCase("MD5-sess")) {
+        if ("MD5-sess".equalsIgnoreCase(algorithm)) {
             // H( unq(username-value) ":" unq(realm-value) ":" passwd )
             //      ":" unq(nonce-value)
             //      ":" unq(cnonce-value)
@@ -462,8 +462,8 @@ public class DigestAuthenticator implements CachingAuthenticator {
         } else {
             try {
                 return data.getBytes("US-ASCII");
-            } catch (UnsupportedEncodingException var2) {
-                throw new Error("HttpClient requires ASCII support");
+            } catch (UnsupportedEncodingException e) {
+                throw new Error("HttpClient requires ASCII support", e);
             }
         }
     }
@@ -476,7 +476,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         this.proxy = proxy;
     }
 
-    private class AuthenticationException extends IllegalStateException {
+    private static class AuthenticationException extends IllegalStateException {
         public AuthenticationException(String s) {
             super(s);
         }
