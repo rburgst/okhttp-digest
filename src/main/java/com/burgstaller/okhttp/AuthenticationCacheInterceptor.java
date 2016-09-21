@@ -40,7 +40,7 @@ public class AuthenticationCacheInterceptor implements Interceptor {
         Response response = chain.proceed(authRequest);
 
         // Cached response was used, but it produced unauthorized response (cache expired).
-        if (authenticator != null && response.code() == HTTP_UNAUTHORIZED) {
+        if (authenticator != null && response != null && response.code() == HTTP_UNAUTHORIZED) {
             // Remove cached authenticator and resend request
             if (authCache.remove(key) != null) {
                 response.body().close();
