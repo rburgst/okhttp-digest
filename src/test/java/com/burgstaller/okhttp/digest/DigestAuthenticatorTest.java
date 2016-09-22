@@ -11,7 +11,6 @@ import java.io.IOException;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class DigestAuthenticatorTest {

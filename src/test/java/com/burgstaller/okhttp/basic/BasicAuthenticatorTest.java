@@ -1,7 +1,6 @@
 package com.burgstaller.okhttp.basic;
 
 import com.burgstaller.okhttp.digest.Credentials;
-import com.burgstaller.okhttp.digest.DigestAuthenticator;
 
 import org.junit.Before;
 import org.junit.Test;
