@@ -30,7 +30,7 @@ public class BasicAuthenticator implements CachingAuthenticator {
         // prevent infinite loops when the password is wrong
         final String authorizationHeader = request.header("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Basic")) {
-            Platform.get().log(Platform.WARN, "previous digest authentication failed, returning null", null);
+            Platform.get().log(Platform.WARN, "previous basic authentication failed, returning null", null);
             return null;
         }
         String authValue = okhttp3.Credentials.basic(credentials.getUserName(), credentials.getPassword());
