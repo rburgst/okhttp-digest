@@ -9,6 +9,9 @@ import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.internal.platform.Platform;
+
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 /**
  * An HTTP Request interceptor that adds previous auth headers in to the same host. This enables the
@@ -34,6 +37,18 @@ public class AuthenticationCacheInterceptor implements Interceptor {
         if (authRequest == null) {
             authRequest = request;
         }
-        return chain.proceed(authRequest);
+        Response response = chain.proceed(authRequest);
+
+        // Cached response was used, but it produced unauthorized response (cache expired).
+        if (authenticator != null && response != null && response.code() == HTTP_UNAUTHORIZED) {
+            // Remove cached authenticator and resend request
+            if (authCache.remove(key) != null) {
+                response.body().close();
+                Platform.get().log(Platform.WARN, "Cached authentication expired. Sending a new request.", null);
+                // Force sending a new request without "Authorization" header
+                response = chain.proceed(request);
+            }
+        }
+        return response;
     }
 }
