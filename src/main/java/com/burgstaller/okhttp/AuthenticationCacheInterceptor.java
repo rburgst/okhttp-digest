@@ -44,7 +44,7 @@ public class AuthenticationCacheInterceptor implements Interceptor {
             // Remove cached authenticator and resend request
             if (authCache.remove(key) != null) {
                 response.body().close();
-                Platform.get().log(Platform.WARN, "Cached authentication expired. Sending a new request.", null);
+                Platform.get().log(Platform.INFO, "Cached authentication expired. Sending a new request.", null);
                 // Force sending a new request without "Authorization" header
                 response = chain.proceed(request);
             }

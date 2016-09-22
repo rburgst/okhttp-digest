@@ -21,6 +21,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.junit.Assert.*;
 
 /**
@@ -45,6 +46,12 @@ public class AuthenticationCacheInterceptorTest {
 
         // Check that unauthorized response (e.g. credentials changed or expired)
         // removes cached authenticator
+        whenServerReturns401(dummyUrl, interceptor);
+
+        thenAuthCacheShouldBeEmpty(authCache);
+    }
+
+    private void whenServerReturns401(final String dummyUrl, Interceptor interceptor) throws IOException {
         interceptor.intercept(new Interceptor.Chain() {
             @Override
             public Request request() {
@@ -53,21 +60,21 @@ public class AuthenticationCacheInterceptorTest {
                         .get()
                         .build();
             }
+
             @Override
             public Response proceed(Request request) throws IOException {
-                return new Response.Builder()
-                        .body(ResponseBody.create(MediaType.parse("text/plain"), "Unauthorized"))
-                        .request(request)
-                        .protocol(Protocol.HTTP_1_1)
-                        .code(401)
-                        .header("WWW-Authenticate", "Basic realm=\"myrealm\"")
-                        .build();
+                Response response = givenUnauthorizedServerResponse(request);
+                return response;
             }
+
             @Override
             public Connection connection() {
                 return null;
             }
         });
+    }
+
+    private void thenAuthCacheShouldBeEmpty(Map<String, CachingAuthenticator> authCache) {
         // No cached authenticator anymore
         assertEquals(0, authCache.size());
     }
@@ -111,12 +118,14 @@ public class AuthenticationCacheInterceptorTest {
                         .get()
                         .build();
             }
+
             @Override
             public Response proceed(Request request) throws IOException {
                 final String authorization = request.header("Authorization");
                 authResultHeader.set(authorization);
                 return null;
             }
+
             @Override
             public Connection connection() {
                 return null;
@@ -136,9 +145,19 @@ public class AuthenticationCacheInterceptorTest {
         Response response = new Response.Builder()
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
-                .code(401)
+                .code(HTTP_UNAUTHORIZED)
                 .header("WWW-Authenticate", "Basic realm=\"myrealm\"")
                 .build();
         decorator.authenticate(null, response);
+    }
+
+    private Response givenUnauthorizedServerResponse(Request request) {
+        return new Response.Builder()
+                .body(ResponseBody.create(MediaType.parse("text/plain"), "Unauthorized"))
+                .request(request)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HTTP_UNAUTHORIZED)
+                .header("WWW-Authenticate", "Basic realm=\"myrealm\"")
+                .build();
     }
 }
