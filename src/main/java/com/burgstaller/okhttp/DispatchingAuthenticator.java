@@ -2,17 +2,17 @@ package com.burgstaller.okhttp;
 
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 
-import okhttp3.Authenticator;
-import okhttp3.Challenge;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.Route;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import okhttp3.Authenticator;
+import okhttp3.Challenge;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
 /**
  * A dispatching authenticator which can be used with multiple auth schemes.
@@ -33,7 +33,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
 
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
-        List<Challenge> challenges = response.challenges();
+        List<Challenge> challenges = ChallengeParser.challenges(response);
         if (!challenges.isEmpty()) {
             for (Challenge challenge : challenges) {
                 final String scheme = challenge.scheme();
@@ -73,3 +73,4 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
         }
     }
 }
+
