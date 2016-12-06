@@ -1,3 +1,8 @@
+## v1.10
+
+* upgrade to okhttp 3.5
+* improved handling of expired authentications
+
 ## v1.9
 
 * further enhancements for multithreaded operation
