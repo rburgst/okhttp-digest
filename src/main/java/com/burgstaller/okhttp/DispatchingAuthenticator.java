@@ -33,7 +33,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
 
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
-        List<Challenge> challenges = ChallengeParser.challenges(response);
+        List<Challenge> challenges = response.challenges();
         if (!challenges.isEmpty()) {
             for (Challenge challenge : challenges) {
                 final String scheme = challenge.scheme();
