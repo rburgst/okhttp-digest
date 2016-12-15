@@ -118,7 +118,6 @@ public class DigestAuthenticator implements CachingAuthenticator {
         return new String(buffer);
     }
 
-
     protected void parseChallenge(
             final String buffer, int pos, int len, Map<String, String> params) {
 
@@ -154,9 +153,11 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     private String getHeaderName(int httpStatus) {
         if (httpStatus == 401) {
+            setProxy(false);
             return WWW_AUTH;
         }
         if (httpStatus == 407) {
+            setProxy(true);
             return PROXY_AUTH;
         }
         return "";
