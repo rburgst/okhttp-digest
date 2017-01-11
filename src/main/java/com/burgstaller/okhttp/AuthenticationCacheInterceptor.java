@@ -9,6 +9,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.Route;
 import okhttp3.internal.platform.Platform;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
@@ -31,8 +32,9 @@ public class AuthenticationCacheInterceptor implements Interceptor {
         final String key = CachingUtils.getCachingKey(url);
         CachingAuthenticator authenticator = authCache.get(key);
         Request authRequest = null;
+        Route route = chain.connection().route();
         if (authenticator != null) {
-            authRequest = authenticator.authenticateWithState(request);
+            authRequest = authenticator.authenticateWithState(route, request);
         }
         if (authRequest == null) {
             authRequest = request;

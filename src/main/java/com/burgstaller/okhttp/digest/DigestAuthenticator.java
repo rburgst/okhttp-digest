@@ -148,7 +148,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             throw new IllegalArgumentException("missing nonce in challenge header: " + header);
         }
 
-        return authenticateWithState(response.request());
+        return authenticateWithState(route, response.request());
     }
 
     private String getHeaderName(int httpStatus) {
@@ -174,7 +174,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     }
 
     @Override
-    public Request authenticateWithState(Request request) throws IOException {
+    public Request authenticateWithState(Route route, Request request) throws IOException {
         final String realm = parameters.get("realm");
         if (realm == null) {
             // missing realm, this would mean that the authenticator is not initialized for this

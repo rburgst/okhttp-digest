@@ -40,7 +40,7 @@ public class BasicAuthenticator implements CachingAuthenticator {
     }
 
     @Override
-    public Request authenticateWithState(Request request) throws IOException {
+    public Request authenticateWithState(Route route, Request request) throws IOException {
         return authFromRequest(request);
     }
 }

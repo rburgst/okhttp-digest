@@ -50,9 +50,9 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
     }
 
     @Override
-    public Request authenticateWithState(Request request) throws IOException {
+    public Request authenticateWithState(Route route, Request request) throws IOException {
         for (Map.Entry<String, CachingAuthenticator> authenticatorEntry : cachingRegistry.entrySet()) {
-            final Request authRequest = authenticatorEntry.getValue().authenticateWithState(request);
+            final Request authRequest = authenticatorEntry.getValue().authenticateWithState(route, request);
             if (authRequest != null) {
                 return authRequest;
             }
