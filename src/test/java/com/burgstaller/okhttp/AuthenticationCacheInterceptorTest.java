@@ -5,24 +5,38 @@ import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 
 import org.hamcrest.text.MatchesPattern;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.SocketFactory;
+
+import okhttp3.Address;
 import okhttp3.Authenticator;
 import okhttp3.Connection;
+import okhttp3.ConnectionSpec;
+import okhttp3.Dns;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.Route;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.junit.Assert.*;
+import static org.mockito.BDDMockito.given;
 
 /**
  * Unit test for authenticator caching.
@@ -30,6 +44,33 @@ import static org.junit.Assert.*;
  * @author Alexey Vasilyev
  */
 public class AuthenticationCacheInterceptorTest {
+
+    @Mock
+    private Connection mockConnection;
+    private Route mockRoute;
+    @Mock
+    private Dns mockDns;
+    @Mock
+    private SocketFactory socketFactory;
+    @Mock
+    private Authenticator proxyAuthenticator;
+    @Mock
+    private ProxySelector proxySelector;
+    @Mock
+    Proxy proxy;
+
+    @Before
+    public void beforeMethod() {
+        MockitoAnnotations.initMocks(this);
+
+        // setup some dummy data so that we dont get NPEs
+        Address address = new Address("localhost", 8080, mockDns, socketFactory, null, null,
+                null, proxyAuthenticator, null, Collections.singletonList(Protocol.HTTP_1_1),
+                Collections.singletonList(ConnectionSpec.MODERN_TLS), proxySelector);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);
+        mockRoute = new Route(address, proxy, inetSocketAddress);
+        given(mockConnection.route()).willReturn(mockRoute);
+    }
 
     @Test
     public void testCaching_withExpiredAuthentication() throws Exception {
@@ -69,7 +110,7 @@ public class AuthenticationCacheInterceptorTest {
 
             @Override
             public Connection connection() {
-                return null;
+                return mockConnection;
             }
         });
     }
@@ -128,7 +169,7 @@ public class AuthenticationCacheInterceptorTest {
 
             @Override
             public Connection connection() {
-                return null;
+                return mockConnection;
             }
         });
         return authResultHeader.get();
