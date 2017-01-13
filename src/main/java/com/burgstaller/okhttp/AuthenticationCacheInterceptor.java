@@ -12,6 +12,7 @@ import okhttp3.Response;
 import okhttp3.Route;
 import okhttp3.internal.platform.Platform;
 
+import static java.net.HttpURLConnection.HTTP_PROXY_AUTH;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 /**
@@ -42,7 +43,8 @@ public class AuthenticationCacheInterceptor implements Interceptor {
         Response response = chain.proceed(authRequest);
 
         // Cached response was used, but it produced unauthorized response (cache expired).
-        if (authenticator != null && response != null && response.code() == HTTP_UNAUTHORIZED) {
+        int responseCode = response != null ? response.code() : 0;
+        if (authenticator != null && (responseCode == HTTP_UNAUTHORIZED || responseCode == HTTP_PROXY_AUTH)) {
             // Remove cached authenticator and resend request
             if (authCache.remove(key) != null) {
                 response.body().close();
