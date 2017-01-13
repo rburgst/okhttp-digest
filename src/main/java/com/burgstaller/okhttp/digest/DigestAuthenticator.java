@@ -193,11 +193,20 @@ public class DigestAuthenticator implements CachingAuthenticator {
             Platform.get().log(Platform.WARN, "previous digest authentication with same nonce failed, returning null", null);
             return null;
         }
+
         // Add method name and request-URI to the parameter map
-        final String method = request.method();
-        final String uri = RequestLine.requestPath(request.url());
-        getParameters().put("methodname", method);
-        getParameters().put("uri", uri);
+        if (!route.requiresTunnel()) {
+            final String method = request.method();
+            final String uri = RequestLine.requestPath(request.url());
+            getParameters().put("methodname", method);
+            getParameters().put("uri", uri);
+        } else {
+            final String method = "CONNECT";
+            final String uri = request.url().host() + ':' + request.url().port();
+            getParameters().put("methodname", method);
+            getParameters().put("uri", uri);
+        }
+
         final String charset = getParameter("charset");
         if (charset == null) {
             String credentialsCharset = getCredentialsCharset(request);
