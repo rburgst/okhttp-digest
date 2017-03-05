@@ -1,4 +1,8 @@
-## v1.11
+## v1.12
+
+* fixed issues with new proxy code when no proxy was used
+
+## v1.11 (bad release dont use)
 
 * improved proxy authentication (not tested if it actually works)
 
