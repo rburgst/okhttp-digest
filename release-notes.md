@@ -1,3 +1,7 @@
+## v1.11
+
+* improved proxy authentication (not tested if it actually works)
+
 ## v1.10
 
 * upgrade to okhttp 3.5
