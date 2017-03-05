@@ -195,7 +195,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
 
         // Add method name and request-URI to the parameter map
-        if (!route.requiresTunnel()) {
+        if (route == null || !route.requiresTunnel()) {
             final String method = request.method();
             final String uri = RequestLine.requestPath(request.url());
             getParameters().put("methodname", method);
