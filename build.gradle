@@ -65,7 +65,7 @@ bintray {
         issueTrackerUrl = 'https://github.com/rburgst/okhttp-digest/issues'
         vcsUrl = gitUrl
         licenses = ['Apache-2.0']
-        labels = ['aar', 'android', 'okhttp']
+        labels = ['android', 'okhttp']
         publicDownloadNumbers = true
     }
 }

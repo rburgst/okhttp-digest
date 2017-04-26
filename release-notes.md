@@ -1,3 +1,7 @@
+## v1.13
+
+* converted to pure java library 
+
 ## v1.12
 
 * fixed issues with new proxy code when no proxy was used
