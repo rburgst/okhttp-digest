@@ -6,7 +6,9 @@ import com.burgstaller.okhttp.digest.DigestAuthenticator;
 
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -52,6 +54,8 @@ public class ProxyAuthenticationManualTest {
 
     private Proxy proxy;
     private String authPass = "allCorrect@auth";
+    @Rule
+    public TestName name = new TestName();
 
     @Before
     public void setupProxy() {
@@ -70,6 +74,8 @@ public class ProxyAuthenticationManualTest {
         }
         int proxyPort = Integer.valueOf(proxyPortString);
         proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
+
+        System.err.println("starting " + name.getMethodName());
     }
 
     @Test
