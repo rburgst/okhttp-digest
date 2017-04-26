@@ -1,6 +1,7 @@
 ## v1.13
 
 * converted to pure java library 
+* upgraded okhttp dependency to 3.7.0
 
 ## v1.12
 
