@@ -2,8 +2,7 @@ package com.burgstaller.okhttp.digest;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -37,24 +36,17 @@ import static org.mockito.BDDMockito.given;
 
 public class DigestAuthenticatorTest {
 
-    @Mock
-    private Connection mockConnection;
-    @Mock
-    private Dns mockDns;
-    @Mock
-    private SocketFactory socketFactory;
-    @Mock
-    private Authenticator proxyAuthenticator;
-    @Mock
-    private ProxySelector proxySelector;
-    @Mock
-    Proxy proxy;
     private Route mockRoute;
     private DigestAuthenticator authenticator;
 
     @Before
     public void beforeMethod() {
-        MockitoAnnotations.initMocks(this);
+        Connection mockConnection = mock(Connection.class);
+        Dns mockDns = mock(Dns.class);
+        SocketFactory socketFactory = mock(SocketFactory.class);
+        Authenticator proxyAuthenticator = mock(Authenticator.class);
+        ProxySelector proxySelector = mock(ProxySelector.class);
+        Proxy proxy = mock(Proxy.class);
 
         // setup some dummy data so that we dont get NPEs
         Address address = new Address("localhost", 8080, mockDns, socketFactory, null, null,
@@ -305,35 +297,35 @@ public class DigestAuthenticatorTest {
 
     @Test
     public void testMultithreadedAuthenticate() throws Exception {
-      final DigestAuthenticatorTest test = this;
-      final ConcurrentHashMap<String,Exception> exceptions = new ConcurrentHashMap<>();
-      ExecutorService executor = new ThreadPoolExecutor(20, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
-      for ( final Method method : this.getClass().getDeclaredMethods() ) {
-        if ( method.getName().startsWith("testAuthenticate") ) {
-          executor.execute(new Runnable() {
-            public void run() {
-              try {
-                System.out.println("invoking method=" + method.getName());
-                method.invoke(test);
-              } catch(Exception e) {
-                exceptions.put(method.getName(), e);
-              }
+        final DigestAuthenticatorTest test = this;
+        final ConcurrentHashMap<String,Exception> exceptions = new ConcurrentHashMap<>();
+        ExecutorService executor = new ThreadPoolExecutor(20, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
+        for ( final Method method : this.getClass().getDeclaredMethods() ) {
+            if ( method.getName().startsWith("testAuthenticate") ) {
+                executor.execute(new Runnable() {
+                    public void run() {
+                        try {
+                            System.out.println("invoking method=" + method.getName());
+                            method.invoke(test);
+                        } catch(Exception e) {
+                            exceptions.put(method.getName(), e);
+                        }
+                    }
+                });
             }
-          });
         }
-      }
-      executor.shutdown();
-      try {
-        executor.awaitTermination(2, TimeUnit.MINUTES);
-      } catch(InterruptedException e) {
-        throw new IllegalStateException("Timeout trying to run testMultithreadedAuthenticate");
-      }
-      if ( exceptions.size() > 0 ) {
-        for ( String methodName : exceptions.keySet() ) {
-          System.err.println("Test " + methodName + " failed under testMultithreadedAuthenticate:");
-          exceptions.get(methodName).printStackTrace();
+        executor.shutdown();
+        try {
+            executor.awaitTermination(2, TimeUnit.MINUTES);
+        } catch(InterruptedException e) {
+            throw new IllegalStateException("Timeout trying to run testMultithreadedAuthenticate");
         }
-        throw exceptions.elements().nextElement();
-      }
+        if ( exceptions.size() > 0 ) {
+            for ( String methodName : exceptions.keySet() ) {
+                System.err.println("Test " + methodName + " failed under testMultithreadedAuthenticate:");
+                exceptions.get(methodName).printStackTrace();
+            }
+            throw exceptions.elements().nextElement();
+        }
     }
 }
