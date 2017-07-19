@@ -301,7 +301,8 @@ public class DigestAuthenticatorTest {
         final ConcurrentHashMap<String,Exception> exceptions = new ConcurrentHashMap<>();
         ExecutorService executor = new ThreadPoolExecutor(20, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
         for ( final Method method : this.getClass().getDeclaredMethods() ) {
-            if ( method.getName().startsWith("testAuthenticate") ) {
+            if ( method.getName().startsWith("testAuthenticate") &&
+                 ! method.getName().endsWith("shouldThrowException") ) {
                 executor.execute(new Runnable() {
                     public void run() {
                         try {
