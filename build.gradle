@@ -36,11 +36,10 @@ ext {
 
 
 dependencies {
+    testCompile 'junit:junit:4.12'
     compile "com.squareup.okhttp3:okhttp:${okhttpVersion}"
     testCompile "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
-
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
-    testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.5.7'
 }
 
@@ -94,5 +93,5 @@ task findConventions {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.0'
 }
