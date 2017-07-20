@@ -9,12 +9,14 @@ plugins {
 }
 
 apply plugin: 'java'
+apply plugin: 'maven'
 
 if (new File("./gradle/localrepo.gradle").exists()) {
     apply from: "./gradle/localrepo.gradle"
 }
 
 group = "com.burgstaller"
+version = "1.12.1"
 archivesBaseName = 'okhttp-digest'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
