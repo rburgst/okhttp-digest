@@ -18,6 +18,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import okhttp3.Headers;
 import okhttp3.Request;
@@ -61,6 +63,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             'e', 'f'
     };
 
+    AtomicReference<ConcurrentHashMap<String,String>> parametersRef = new AtomicReference<>();
     private Charset credentialsCharset = Charset.forName("ASCII");
     private final Credentials credentials;
     private String lastNonce;
@@ -138,10 +141,12 @@ public class DigestAuthenticator implements CachingAuthenticator {
     @Override
     public synchronized Request authenticate(Route route, Response response) throws IOException {
         String header = findDigestHeader(response.headers(), getHeaderName(response.code()));
-        Map<String,String> parameters = new ConcurrentHashMap<String,String>();
+        ConcurrentHashMap<String,String> parameters = new ConcurrentHashMap<>();
         parseChallenge(header, 7, header.length() - 7, parameters);
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
+        // save these parameters so future requests don't need the challenge response every time
+        parametersRef.set(parameters);
 
         // sanity check for issue #22
         if (parameters.get("nonce") == null) {
@@ -175,7 +180,9 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     @Override
     public Request authenticateWithState(Route route, Request request) throws IOException {
-      return authenticateWithState(route, request, new ConcurrentHashMap<String,String>());
+      // make sure we don't modify the values in shared parametersRef instance
+      Map<String,String> parameters = new HashMap<>(parametersRef.get());
+      return authenticateWithState(route, request, parameters);
     }
 
     public Request authenticateWithState(Route route, Request request, Map<String,String> parameters) throws IOException {
