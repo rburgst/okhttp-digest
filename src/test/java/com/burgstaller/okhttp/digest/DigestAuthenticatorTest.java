@@ -71,13 +71,13 @@ public class DigestAuthenticatorTest {
                 .code(401)
                 .message("Unauthorized")
                 .header("WWW-Authenticate",
-                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
         assertThat(authenticated.header("Authorization"),
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                        "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                        "nonce=\"BBBBBB\", " +
                         "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
@@ -94,13 +94,13 @@ public class DigestAuthenticatorTest {
                 .code(401)
                 .message("Unauthorized")
                 .header("WWW-Authenticate",
-                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
         assertThat(authenticated.header("Authorization"),
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                        "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                        "nonce=\"BBBBBB\", " +
                         "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
 
         // when
@@ -111,7 +111,7 @@ public class DigestAuthenticatorTest {
         Request secondAuthenticatedRequest = authenticator.authenticateWithState(mockRoute, secondRequest);
         assertThat(secondAuthenticatedRequest.header("Authorization"),
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                        "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                        "nonce=\"BBBBBB\", " +
                         "uri=\"/account\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
@@ -127,13 +127,13 @@ public class DigestAuthenticatorTest {
                 .code(407)
                 .message("Proxy Authentication Required")
                 .header("Proxy-Authenticate",
-                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
         assertThat(authenticated.header("Proxy-Authorization"),
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                  "nonce=\"BBBBBB\", " +
                   "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
@@ -171,14 +171,14 @@ public class DigestAuthenticatorTest {
                 .code(401)
                 .message("Unauthorized")
                 .header("WWW-Authenticate",
-                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
         String authHeader = authenticated.header("Authorization");
         assertThat(authHeader,
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                  "nonce=\"BBBBBB\", " +
                   "uri=\"/path/to/resource\\?parameter=value&parameter2=value2\", " +
                   "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
@@ -195,14 +195,14 @@ public class DigestAuthenticatorTest {
                 .code(401)
                 .message("Unauthorized")
                 .header("WWW-Authenticate",
-                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .build();
         Request authenticated = authenticator.authenticate(null, response);
 
         String authHeader = authenticated.header("Authorization");
         assertThat(authHeader,
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                  "nonce=\"BBBBBB\", " +
                   "uri=\"/path/to/resource\\?parameter=value&parameter2=value2\", " +
                   "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
@@ -219,14 +219,14 @@ public class DigestAuthenticatorTest {
                 .code(401)
                 .message("Unauthorized")
                 .addHeader("WWW-Authenticate",
-                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .addHeader("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
         assertThat(authenticated.header("Authorization"),
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"/\", " +
+                  "nonce=\"BBBBBB\", uri=\"/\", " +
                   "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
@@ -236,7 +236,7 @@ public class DigestAuthenticatorTest {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", uri=\"/\", " +
+                  "nonce=\"BBBBBB\", uri=\"/\", " +
                   "response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
@@ -246,7 +246,7 @@ public class DigestAuthenticatorTest {
                 .code(401)
                 .message("Unauthorized")
                 .addHeader("WWW-Authenticate",
-                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .addHeader("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
                 .build();
 
