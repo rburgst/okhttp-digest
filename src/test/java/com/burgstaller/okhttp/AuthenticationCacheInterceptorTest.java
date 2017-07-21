@@ -234,6 +234,7 @@ public class AuthenticationCacheInterceptorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(HTTP_UNAUTHORIZED)
+                .message("Unauthorized")
                 .header("WWW-Authenticate", "Basic realm=\"myrealm\"")
                 .build();
         decorator.authenticate(null, response);
@@ -245,6 +246,7 @@ public class AuthenticationCacheInterceptorTest {
                 .request(request)
                 .protocol(Protocol.HTTP_1_1)
                 .code(HTTP_UNAUTHORIZED)
+                .message("Unauthorized")
                 .header("WWW-Authenticate", "Basic realm=\"myrealm\"")
                 .build();
     }
