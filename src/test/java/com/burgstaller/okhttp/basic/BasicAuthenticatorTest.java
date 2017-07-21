@@ -40,6 +40,7 @@ public class BasicAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .header("WWW-Authenticate", "Basic realm=\"myrealm\"")
                 .build();
         Request authenticated = authenticator.authenticate(null, response);
@@ -59,6 +60,7 @@ public class BasicAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .header("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
                 .build();
 
