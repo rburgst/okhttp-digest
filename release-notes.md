@@ -1,3 +1,8 @@
+## v1.14
+
+* improved multithreaded access
+* upgraded okhttp dependency to 3.8.1
+
 ## v1.13
 
 * converted to pure java library 

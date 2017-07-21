@@ -17,6 +17,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,7 +64,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             'e', 'f'
     };
 
-    AtomicReference<ConcurrentHashMap<String,String>> parametersRef = new AtomicReference<>();
+    private AtomicReference<Map<String,String>> parametersRef = new AtomicReference<>();
     private Charset credentialsCharset = Charset.forName("ASCII");
     private final Credentials credentials;
     private String lastNonce;
@@ -141,12 +142,12 @@ public class DigestAuthenticator implements CachingAuthenticator {
     @Override
     public synchronized Request authenticate(Route route, Response response) throws IOException {
         String header = findDigestHeader(response.headers(), getHeaderName(response.code()));
-        ConcurrentHashMap<String,String> parameters = new ConcurrentHashMap<>();
+        Map<String,String> parameters = new HashMap<>();
         parseChallenge(header, 7, header.length() - 7, parameters);
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
         // save these parameters so future requests don't need the challenge response every time
-        parametersRef.set(parameters);
+        parametersRef.set(Collections.unmodifiableMap(parameters));
 
         // sanity check for issue #22
         if (parameters.get("nonce") == null) {
@@ -180,12 +181,12 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     @Override
     public Request authenticateWithState(Route route, Request request) throws IOException {
-      // make sure we don't modify the values in shared parametersRef instance
-      Map<String,String> parameters = new HashMap<>(parametersRef.get());
-      return authenticateWithState(route, request, parameters);
+        // make sure we don't modify the values in shared parametersRef instance
+        Map<String,String> parameters = new HashMap<>(parametersRef.get());
+        return authenticateWithState(route, request, parameters);
     }
 
-    public Request authenticateWithState(Route route, Request request, Map<String,String> parameters) throws IOException {
+    private Request authenticateWithState(Route route, Request request, Map<String,String> parameters) throws IOException {
         final String realm = parameters.get("realm");
         if (realm == null) {
             // missing realm, this would mean that the authenticator is not initialized for this

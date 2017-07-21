@@ -69,6 +69,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .header("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
                 .build();
@@ -76,8 +77,42 @@ public class DigestAuthenticatorTest {
 
         assertThat(authenticated.header("Authorization"),
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+                        "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+    }
+
+    @Test
+    public void testAuthenticate__withMultipleRequestsToSameSite__shouldCacheAuthParams() throws Exception {
+        // given
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .message("Unauthorized")
+                .header("WWW-Authenticate",
+                        "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
+                .build();
+        Request authenticated = authenticator.authenticate(mockRoute, response);
+
+        assertThat(authenticated.header("Authorization"),
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
+                        "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+
+        // when
+        Request secondRequest = new Request.Builder()
+                .url("http://www.google.com/account")
+                .get()
+                .build();
+        Request secondAuthenticatedRequest = authenticator.authenticateWithState(mockRoute, secondRequest);
+        assertThat(secondAuthenticatedRequest.header("Authorization"),
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
+                        "nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", " +
+                        "uri=\"/account\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
     @Test
@@ -90,6 +125,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(407)
+                .message("Proxy Authentication Required")
                 .header("Proxy-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
                 .build();
@@ -111,6 +147,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .header("WWW-Authenticate",
                         "Digest realm=\"myrealm\", algorithm=MD5, qop=\"auth\"")
                 .build();
@@ -132,6 +169,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .header("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
                 .build();
@@ -155,6 +193,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .header("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
                 .build();
@@ -178,6 +217,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .addHeader("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
                 .addHeader("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
@@ -204,6 +244,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .addHeader("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"NnjGCdMhBQA=8ede771f94b593e46e5d0dd10b68313226c133f4\", algorithm=MD5, qop=\"auth\"")
                 .addHeader("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
@@ -229,6 +270,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .addHeader("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .addHeader("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
@@ -254,6 +296,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .addHeader("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\", stale=true")
                 .addHeader("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
@@ -281,6 +324,7 @@ public class DigestAuthenticatorTest {
                 .request(dummyRequest)
                 .protocol(Protocol.HTTP_1_1)
                 .code(401)
+                .message("Unauthorized")
                 .addHeader("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\", stale=\"true\"")
                 .addHeader("WWW-Authenticate", "Basic realm=\"DVRNVRDVS\"")
@@ -292,8 +336,7 @@ public class DigestAuthenticatorTest {
         // then
         assertThat(authenticated.header("Authorization"),
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
-    }
+                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));}
 
     @Test
     public void testMultithreadedAuthenticate() throws Exception {
