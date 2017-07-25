@@ -3,7 +3,7 @@ package com.burgstaller.okhttp;
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
 
     private DispatchingAuthenticator(Map<String, Authenticator> registry) {
         authenticatorRegistry = registry;
-        cachingRegistry = new HashMap<>();
+        cachingRegistry = new LinkedHashMap<>();
         for (Map.Entry<String, Authenticator> entry : authenticatorRegistry.entrySet()) {
             if (entry.getValue() instanceof CachingAuthenticator) {
                 cachingRegistry.put(entry.getKey(), (CachingAuthenticator) entry.getValue());
@@ -61,7 +61,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
     }
 
     public static final class Builder {
-        Map<String, Authenticator> registry = new HashMap<>();
+        Map<String, Authenticator> registry = new LinkedHashMap<>();
 
         public Builder with(String scheme, Authenticator authenticator) {
             registry.put(scheme.toLowerCase(Locale.getDefault()), authenticator);
