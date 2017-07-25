@@ -89,8 +89,8 @@ public class DispatchingAuthenticatorTest {
         final BasicAuthenticator basicAuthenticator = new BasicAuthenticator(credentials);
         final DigestAuthenticator digestAuthenticator = new DigestAuthenticator(credentials);
         DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
-                .with("digest", digestAuthenticator)
                 .with("basic", basicAuthenticator)
+                .with("digest", digestAuthenticator)
                 .build();
 
         Request request = authenticator.authenticate(mockRoute, createUnauthorizedServerResponse());
