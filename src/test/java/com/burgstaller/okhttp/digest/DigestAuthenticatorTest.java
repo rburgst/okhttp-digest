@@ -2,6 +2,8 @@ package com.burgstaller.okhttp.digest;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
@@ -336,7 +338,23 @@ public class DigestAuthenticatorTest {
         // then
         assertThat(authenticated.header("Authorization"),
                 matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));}
+                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+    }
+
+    /**
+     * Tests a case where the digest authenticator is used in tandem with another authenticator and
+     * DispatchingAuthenticator will call authenticateWithState on all registered authenticators
+     * even when they dont have an initial state.
+     */
+    @Test
+    public void testAuthenticateWithState__whenNoInitialStateWasGiven__shouldNotThrowException() throws Exception {
+        Request secondRequest = new Request.Builder()
+                .url("http://www.google.com/account")
+                .get()
+                .build();
+        Request authenticatedRequest = authenticator.authenticateWithState(mockRoute, secondRequest);
+        assertNull(authenticatedRequest);
+    }
 
     @Test
     public void testMultithreadedAuthenticate() throws Exception {

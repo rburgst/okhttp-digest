@@ -5,6 +5,7 @@ import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 import com.burgstaller.okhttp.digest.DigestAuthenticator;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,13 @@ import okhttp3.ResponseBody;
 import okhttp3.Route;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class DispatchingAuthenticatorTest {
 
@@ -66,6 +73,34 @@ public class DispatchingAuthenticatorTest {
         given(mockConnection.route()).willReturn(mockRoute);
     }
 
+    /**
+     * Makes sure that in the case of cached authenticators the authenticators are called in the
+     * order in which they were registered.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAuthenticateWithState__shouldCallAuthenticatorsInExpectedOrder() throws Exception {
+        // given
+        CachingAuthenticator auth1 = mock(CachingAuthenticator.class);
+        CachingAuthenticator auth2 = mock(CachingAuthenticator.class);
+
+        DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
+                .with("digest", auth1)
+                .with("basic", auth2)
+                .build();
+        Request request = createDummyRequest();
+        // make sure that the 2nd authenticator will not be called
+        given(auth2.authenticateWithState(eq(mockRoute), eq(request))).willThrow(IllegalStateException.class);
+        given(auth1.authenticateWithState(eq(mockRoute), eq(request))).willReturn(request);
+
+        // when
+        Request result = authenticator.authenticateWithState(mockRoute, request);
+
+        // then
+        assertEquals(request, result);
+    }
+
     @Test
     public void testCaching_withDigestAuthenticatorPreferredOrder() throws Exception {
         final Credentials credentials = new Credentials("user", "pwd");
@@ -77,10 +112,12 @@ public class DispatchingAuthenticatorTest {
                 .build();
 
         Request request = authenticator.authenticate(mockRoute, createUnauthorizedServerResponse());
-        Assert.assertNotNull(request);
+        assertNotNull(request);
+        String authorizationHeader = request.header("Authorization");
+        assertThat(authorizationHeader, CoreMatchers.startsWith("Digest"));
 
         request = authenticator.authenticateWithState(mockRoute, createDummyRequest());
-        Assert.assertNotNull(request);
+        assertNotNull(request);
     }
 
     @Test
@@ -94,10 +131,10 @@ public class DispatchingAuthenticatorTest {
                 .build();
 
         Request request = authenticator.authenticate(mockRoute, createUnauthorizedServerResponse());
-        Assert.assertNotNull(request);
+        assertNotNull(request);
 
         request = authenticator.authenticateWithState(mockRoute, createDummyRequest());
-        Assert.assertNotNull(request);
+        assertNotNull(request);
     }
 
     private Response createUnauthorizedServerResponse() throws IOException {
