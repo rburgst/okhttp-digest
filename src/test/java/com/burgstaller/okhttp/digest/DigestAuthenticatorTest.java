@@ -352,7 +352,9 @@ public class DigestAuthenticatorTest {
                 .url("http://www.google.com/account")
                 .get()
                 .build();
-        Request authenticatedRequest = authenticator.authenticateWithState(mockRoute, secondRequest);
+        CachingAuthenticator localAuthenticator = new DigestAuthenticator(new Credentials("user1", "user1"));
+
+        Request authenticatedRequest = localAuthenticator.authenticateWithState(mockRoute, secondRequest);
         assertNull(authenticatedRequest);
     }
 
