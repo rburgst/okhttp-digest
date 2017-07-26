@@ -114,7 +114,7 @@ public class DispatchingAuthenticatorTest {
         Request request = authenticator.authenticate(mockRoute, createUnauthorizedServerResponse());
         assertNotNull(request);
         String authorizationHeader = request.header("Authorization");
-        assertThat(authorizationHeader, CoreMatchers.startsWith("Digest"));
+        assertThat(authorizationHeader, CoreMatchers.startsWith("Basic"));
 
         request = authenticator.authenticateWithState(mockRoute, createDummyRequest());
         assertNotNull(request);
