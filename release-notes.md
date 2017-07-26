@@ -1,3 +1,8 @@
+## v1.15
+
+* fixed NPE when DigestAuthenticator was used alongside BasicAuthenticator
+* now CachingAuthenticators are called in the order they were registered 
+
 ## v1.14
 
 * improved multithreaded access
