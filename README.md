@@ -5,18 +5,20 @@ ported from Apache Http Client.
 # Usage
 
 ```java
-        client = new OkHttpClient();
-        final DigestAuthenticator authenticator = new DigestAuthenticator(new Credentials("username", "pass"));
+            final DigestAuthenticator authenticator = new DigestAuthenticator(new Credentials("username", "pass"));
 
-        final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
-        client.interceptors().add(new AuthenticationCacheInterceptor(authCache));
-        client.setAuthenticator(new CachingAuthenticatorDecorator(authenticator, authCache));
+            final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
+            final OkHttpClient client = new OkHttpClient.Builder()
+                    .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
+                    .addInterceptor(new AuthenticationCacheInterceptor(authCache))
+                    .build();
 
-        Request request = new Request.Builder()
-          .url(url);
-          .get()
-          .build();
-        Response response = client.newCall(request).execute();
+            String url = "http://www.google.com";
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+            Response response = client.newCall(request).execute();
 ```
 
 If you want to support multiple authentication schemes (including auth caching) then this should

@@ -29,7 +29,7 @@ repositories {
 }
 
 ext {
-    okhttpVersion = "3.8.1"
+    okhttpVersion = "3.9.0"
 }
 
 
@@ -38,7 +38,7 @@ dependencies {
     compile "com.squareup.okhttp3:okhttp:${okhttpVersion}"
     testCompile "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
-    testCompile 'org.mockito:mockito-core:2.5.7'
+    testCompile 'org.mockito:mockito-core:2.10.0'
 }
 
 def siteUrl = 'https://github.com/rburgst/okhttp-digest'
@@ -91,5 +91,5 @@ task findConventions {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.0'
+    gradleVersion = '4.1'
 }
