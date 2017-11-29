@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - openjdk7
+  - oraclejdk7
 script: gradle check -i
 
 before_cache:
