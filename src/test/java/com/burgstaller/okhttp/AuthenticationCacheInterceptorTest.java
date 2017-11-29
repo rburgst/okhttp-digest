@@ -93,24 +93,16 @@ public class AuthenticationCacheInterceptorTest {
     }
 
     private void whenServerReturns401(final String dummyUrl, Interceptor interceptor) throws IOException {
-        interceptor.intercept(new Interceptor.Chain() {
-            @Override
-            public Request request() {
-                return new Request.Builder()
-                        .url(dummyUrl)
-                        .get()
-                        .build();
-            }
+        Request request = new Request.Builder()
+                .url(dummyUrl)
+                .get()
+                .build();
+        interceptor.intercept(new ChainAdapter(request, mockConnection) {
 
             @Override
             public Response proceed(Request request) throws IOException {
                 Response response = givenUnauthorizedServerResponse(request);
                 return response;
-            }
-
-            @Override
-            public Connection connection() {
-                return mockConnection;
             }
         });
     }
@@ -171,25 +163,16 @@ public class AuthenticationCacheInterceptorTest {
     private String whenInterceptAuthenticationForUrl(Interceptor interceptor, final String url) throws IOException {
         // we need a result holder for passing into the anonymous class
         final AtomicReference<String> authResultHeader = new AtomicReference<>();
-        interceptor.intercept(new Interceptor.Chain() {
-            @Override
-            public Request request() {
-                return new Request.Builder()
-                        .url(url)
-                        .get()
-                        .build();
-            }
-
+        final Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        interceptor.intercept(new ChainAdapter(request, mockConnection) {
             @Override
             public Response proceed(Request request) throws IOException {
                 final String authorization = request.header("Authorization");
                 authResultHeader.set(authorization);
                 return null;
-            }
-
-            @Override
-            public Connection connection() {
-                return mockConnection;
             }
         });
         return authResultHeader.get();
@@ -198,24 +181,16 @@ public class AuthenticationCacheInterceptorTest {
     private String whenInterceptAuthenticationForUrlWithNoConnection(Interceptor interceptor, final String url) throws IOException {
         // we need a result holder for passing into the anonymous class
         final AtomicReference<String> authResultHeader = new AtomicReference<>();
-        interceptor.intercept(new Interceptor.Chain() {
-            @Override
-            public Request request() {
-                return new Request.Builder()
-                        .url(url)
-                        .get()
-                        .build();
-            }
+        final Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
 
+        interceptor.intercept(new ChainAdapter(request, mockConnection) {
             @Override
             public Response proceed(Request request) throws IOException {
                 final String authorization = request.header("Authorization");
                 authResultHeader.set(authorization);
-                return null;
-            }
-
-            @Override
-            public Connection connection() {
                 return null;
             }
         });

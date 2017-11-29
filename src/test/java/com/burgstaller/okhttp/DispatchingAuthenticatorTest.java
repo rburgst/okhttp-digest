@@ -6,7 +6,6 @@ import com.burgstaller.okhttp.digest.Credentials;
 import com.burgstaller.okhttp.digest.DigestAuthenticator;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,7 +39,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -140,12 +138,7 @@ public class DispatchingAuthenticatorTest {
     private Response createUnauthorizedServerResponse() throws IOException {
         final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
         Interceptor interceptor = new AuthenticationCacheInterceptor(authCache);
-        return interceptor.intercept(new Interceptor.Chain() {
-            @Override
-            public Request request() {
-                return createDummyRequest();
-            }
-
+        return interceptor.intercept(new ChainAdapter(createDummyRequest(), mockConnection) {
             @Override
             public Response proceed(Request request) throws IOException {
                 return new Response.Builder()
@@ -158,10 +151,6 @@ public class DispatchingAuthenticatorTest {
                         .build();
             }
 
-            @Override
-            public Connection connection() {
-                return mockConnection;
-            }
         });
     }
 
@@ -172,4 +161,5 @@ public class DispatchingAuthenticatorTest {
                 .get()
                 .build();
     }
+
 }
