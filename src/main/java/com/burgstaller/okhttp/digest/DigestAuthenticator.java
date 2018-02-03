@@ -263,7 +263,13 @@ public class DigestAuthenticator implements CachingAuthenticator {
      * server nonce.
      */
     private boolean havePreviousDigestAuthorizationAndShouldAbort(Request request, String nonce, boolean isStale) {
-        final String previousAuthorizationHeader = request.header("Authorization");
+        final String headerKey;
+        if (isProxy()) {
+            headerKey = PROXY_AUTH_RESP;
+        } else {
+            headerKey = WWW_AUTH_RESP;
+        }
+        final String previousAuthorizationHeader = request.header(headerKey);
 
         if (previousAuthorizationHeader != null && previousAuthorizationHeader.startsWith("Digest")) {
             // only retry when the previous auth was stale

@@ -62,7 +62,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate() throws Exception {
+    public void testWWWAuthenticate_shouldWork() throws Exception {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .get()
@@ -84,7 +84,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate__withMultipleRequestsToSameSite__shouldCacheAuthParams() throws Exception {
+    public void testWWWAuthenticate__withMultipleRequestsToSameSite__shouldCacheAuthParams() throws Exception {
         // given
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
@@ -118,7 +118,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate__withProxy__shouldWork() throws Exception {
+    public void testProxyAuthenticate__shouldWork() throws Exception {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .get()
@@ -140,7 +140,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAuthenticate__withInvalidWWWAuthHeader__shouldThrowException() throws Exception {
+    public void testWWWAuthenticate__withInvalidWWWAuthHeader__shouldThrowException() throws Exception {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .get()
@@ -162,7 +162,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate__withUriPathAndParameters() throws Exception {
+    public void testWWWAuthenticate__withUriPathAndParameters() throws Exception {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com/path/to/resource?parameter=value&parameter2=value2")
                 .get()
@@ -186,7 +186,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate__withUriPathAndParametersAndNullRoute() throws Exception {
+    public void testWWWAuthenticate__withUriPathAndParametersAndNullRoute() throws Exception {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com/path/to/resource?parameter=value&parameter2=value2")
                 .get()
@@ -210,7 +210,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate_withMultipleAuthResponseHeaders_shouldWork() throws IOException {
+    public void testWWWAuthenticate_withMultipleAuthResponseHeaders_shouldWork() throws IOException {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .get()
@@ -233,7 +233,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate_withWrongPassword_shouldNotRepeat() throws IOException {
+    public void testWWWAuthenticate_withWrongPassword_shouldNotRepeat() throws IOException {
         // given
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
@@ -260,7 +260,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate_withDifferentNonce_shouldNotRetry() throws IOException {
+    public void testWWWAuthenticate_withDifferentNonce_shouldNotRetry() throws IOException {
         // given
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
@@ -286,7 +286,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate_withDifferentNonceAndStale_shouldRetry() throws IOException {
+    public void testWWWAuthenticate_withDifferentNonceAndStale_shouldRetry() throws IOException {
         // given
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
@@ -314,7 +314,7 @@ public class DigestAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticate_withDifferentNonceAndStaleAndQuotes_shouldRetry() throws IOException {
+    public void testWWWAuthenticate_withDifferentNonceAndStaleAndQuotes_shouldRetry() throws IOException {
         // given
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
@@ -341,13 +341,96 @@ public class DigestAuthenticatorTest {
                   "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
     }
 
+
+    @Test
+    public void testProxyAuthenticate_withDifferentNonce_shouldNotRetry() throws IOException {
+        // given
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .header("Proxy-Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
+                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(407)
+                .message("Proxy Authentication Required")
+                .addHeader("Proxy-Authenticate",
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
+                .addHeader("Proxy-Authenticate", "Basic realm=\"DVRNVRDVS\"")
+                .build();
+
+        // when
+        final Request authenticated = authenticator.authenticate(null, response);
+
+        // then
+        assertThat(authenticated, is(nullValue()));
+    }
+
+    @Test
+    public void testProxyAuthenticate_withDifferentNonceAndStale_shouldRetry() throws IOException {
+        // given
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .header("Proxy-Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
+                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(407)
+                .message("Proxy Authentication Required")
+                .addHeader("Proxy-Authenticate",
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\", stale=true")
+                .addHeader("Proxy-Authenticate", "Basic realm=\"DVRNVRDVS\"")
+                .build();
+
+        // when
+        final Request authenticated = authenticator.authenticate(mockRoute, response);
+
+        // then
+        assertThat(authenticated.header("Proxy-Authorization"),
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
+                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+    }
+
+    @Test
+    public void testProxyAuthenticate_withDifferentNonceAndStaleAndQuotes_shouldRetry() throws IOException {
+        // given
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .header("Proxy-Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
+                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(407)
+                .message("Proxy Authentication Required")
+                .addHeader("Proxy-Authenticate",
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\", stale=\"true\"")
+                .addHeader("Proxy-Authenticate", "Basic realm=\"DVRNVRDVS\"")
+                .build();
+
+        // when
+        final Request authenticated = authenticator.authenticate(mockRoute, response);
+
+        // then
+        assertThat(authenticated.header("Proxy-Authorization"),
+                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
+                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+    }
+
     /**
      * Tests a case where the digest authenticator is used in tandem with another authenticator and
      * DispatchingAuthenticator will call authenticateWithState on all registered authenticators
      * even when they dont have an initial state.
      */
     @Test
-    public void testAuthenticateWithState__whenNoInitialStateWasGiven__shouldNotThrowException() throws Exception {
+    public void testWWWAuthenticateWithState__whenNoInitialStateWasGiven__shouldNotThrowException() throws Exception {
         Request secondRequest = new Request.Builder()
                 .url("http://www.google.com/account")
                 .get()
@@ -358,13 +441,49 @@ public class DigestAuthenticatorTest {
         assertNull(authenticatedRequest);
     }
 
+
     @Test
-    public void testMultithreadedAuthenticate() throws Exception {
+    public void testMultithreadedWWWAuthenticate() throws Exception {
         final DigestAuthenticatorTest test = this;
         final ConcurrentHashMap<String,Exception> exceptions = new ConcurrentHashMap<>();
         ExecutorService executor = new ThreadPoolExecutor(20, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
         for ( final Method method : this.getClass().getDeclaredMethods() ) {
-            if ( method.getName().startsWith("testAuthenticate") &&
+            if ( method.getName().startsWith("testWWWAuthenticate") &&
+                 ! method.getName().endsWith("shouldThrowException") ) {
+                executor.execute(new Runnable() {
+                    public void run() {
+                        try {
+                            System.out.println("invoking method=" + method.getName());
+                            method.invoke(test);
+                        } catch(Exception e) {
+                            exceptions.put(method.getName(), e);
+                        }
+                    }
+                });
+            }
+        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(2, TimeUnit.MINUTES);
+        } catch(InterruptedException e) {
+            throw new IllegalStateException("Timeout trying to run testMultithreadedAuthenticate");
+        }
+        if ( exceptions.size() > 0 ) {
+            for ( String methodName : exceptions.keySet() ) {
+                System.err.println("Test " + methodName + " failed under testMultithreadedAuthenticate:");
+                exceptions.get(methodName).printStackTrace();
+            }
+            throw exceptions.elements().nextElement();
+        }
+    }
+
+    @Test
+    public void testMultithreadedProxyAuthenticate() throws Exception {
+        final DigestAuthenticatorTest test = this;
+        final ConcurrentHashMap<String,Exception> exceptions = new ConcurrentHashMap<>();
+        ExecutorService executor = new ThreadPoolExecutor(20, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
+        for ( final Method method : this.getClass().getDeclaredMethods() ) {
+            if ( method.getName().startsWith("testProxyAuthenticate") &&
                  ! method.getName().endsWith("shouldThrowException") ) {
                 executor.execute(new Runnable() {
                     public void run() {
@@ -393,3 +512,4 @@ public class DigestAuthenticatorTest {
         }
     }
 }
+
