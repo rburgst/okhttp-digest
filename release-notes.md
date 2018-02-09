@@ -1,6 +1,7 @@
 ## v1.16
 
 * upgrade to okhttp 3.9.0
+* fixed proxy authentication for digest proxy
 
 ## v1.15
 

@@ -54,6 +54,7 @@ public class ProxyAuthenticationManualTest {
 
     private Proxy proxy;
     private String authPass = "allCorrect@auth";
+    private String authUser = "okhttp_basic";
     @Rule
     public TestName name = new TestName();
 
@@ -71,6 +72,18 @@ public class ProxyAuthenticationManualTest {
         authPass = System.getenv("PROXY_PASSWORD");
         if (authPass == null) {
             authPass = System.getProperty("PROXY_PASSWORD", "password");
+        }
+        String userOverride = System.getenv("PROXY_USER");
+        if (userOverride == null) {
+            userOverride = System.getProperty("PROXY_USER", authUser);
+        }
+        if (userOverride != null) {
+            authUser = userOverride;
+        }
+
+        authPass = System.getenv("PROXY_PASSWORD");
+        if (authPass == null) {
+            authPass = System.getProperty("PROXY_PASSWORD", "test");
         }
         int proxyPort = Integer.valueOf(proxyPortString);
         proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
@@ -105,8 +118,7 @@ public class ProxyAuthenticationManualTest {
 
     @Test
     public void testConnection_WithProxyBasicAuthWithoutTunnel_Expect200() throws IOException {
-        final BasicAuthenticator authenticator = new BasicAuthenticator(
-                new Credentials(AUTH_BASIC_USERNAME, authPass));
+        final BasicAuthenticator authenticator = givenBasicAuthenticator();
 
         final OkHttpClient client = givenHttpClientWithProxyAuth(authenticator);
         final Request request = new Request.Builder()
@@ -118,8 +130,7 @@ public class ProxyAuthenticationManualTest {
 
     @Test
     public void testConnection_WithProxyBasicAuthWithTunnel_Expect200() throws IOException {
-        final BasicAuthenticator authenticator = new BasicAuthenticator(
-                new Credentials(AUTH_BASIC_USERNAME, authPass));
+        final BasicAuthenticator authenticator = givenBasicAuthenticator();
 
         final OkHttpClient client = givenHttpClientWithProxyAuth(authenticator);
         final Request request = new Request.Builder()
@@ -132,8 +143,7 @@ public class ProxyAuthenticationManualTest {
 
     @Test
     public void testConnection_WithProxyBasicAuthWithNotAllowedSites_Expect403() throws IOException {
-        final BasicAuthenticator authenticator = new BasicAuthenticator(
-                new Credentials(AUTH_BASIC_USERNAME, authPass));
+        final BasicAuthenticator authenticator = givenBasicAuthenticator();
 
         final OkHttpClient client = givenHttpClientWithProxyAuth(authenticator);
         final Request request = new Request.Builder()
@@ -145,8 +155,7 @@ public class ProxyAuthenticationManualTest {
 
     @Test
     public void testConnection_WithProxyDigestAuthWithoutTunnel_Expect200() throws IOException {
-        final DigestAuthenticator authenticator = new DigestAuthenticator(
-                new Credentials(AUTH_DIGEST_USERNAME, authPass));
+        final DigestAuthenticator authenticator = givenDigestAuthenticator();
 
         final OkHttpClient client = givenHttpClientWithProxyAuth(authenticator);
         final Request request = new Request.Builder()
@@ -158,8 +167,7 @@ public class ProxyAuthenticationManualTest {
 
     @Test
     public void testConnection_WithProxyDigestAuthWithTunnel_Expect200() throws IOException {
-        final DigestAuthenticator authenticator = new DigestAuthenticator(
-                new Credentials(AUTH_DIGEST_USERNAME, authPass));
+        final DigestAuthenticator authenticator = givenDigestAuthenticator();
 
         final OkHttpClient client = givenHttpClientWithProxyAuth(authenticator);
         final Request request = new Request.Builder()
@@ -171,8 +179,7 @@ public class ProxyAuthenticationManualTest {
 
     @Test
     public void testConnection_WithProxyDigestAuthWithNotAllowdSites_Expect403() throws IOException {
-        final DigestAuthenticator authenticator = new DigestAuthenticator(
-                new Credentials(AUTH_DIGEST_USERNAME, authPass));
+        final DigestAuthenticator authenticator = givenDigestAuthenticator();
 
         final OkHttpClient client = givenHttpClientWithProxyAuth(authenticator);
         final Request request = new Request.Builder()
@@ -182,6 +189,17 @@ public class ProxyAuthenticationManualTest {
         assertEquals(403, response.code());
     }
 
+    private BasicAuthenticator givenBasicAuthenticator() {
+        System.out.println("using basic authenticator with user " + authUser + ", password " + authPass);
+        return new BasicAuthenticator(
+                new Credentials(authUser, authPass));
+    }
+
+    private DigestAuthenticator givenDigestAuthenticator() {
+        System.out.println("using digest authenticator with user " + authUser + ", password " + authPass);
+        return new DigestAuthenticator(
+                new Credentials(authUser, authPass));
+    }
 
     private OkHttpClient givenHttpClientWithProxyAuth(Authenticator authenticator) {
         return new OkHttpClient.Builder()
