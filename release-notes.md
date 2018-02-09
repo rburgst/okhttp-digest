@@ -1,3 +1,7 @@
+## v1.16
+
+* upgrade to okhttp 3.9.0
+
 ## v1.15
 
 * fixed NPE when DigestAuthenticator was used alongside BasicAuthenticator
