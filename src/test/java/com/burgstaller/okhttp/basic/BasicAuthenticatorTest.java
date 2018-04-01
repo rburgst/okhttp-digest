@@ -11,10 +11,8 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 /**
  * Unit test for basic authenticator.
@@ -45,7 +43,7 @@ public class BasicAuthenticatorTest {
                 .build();
         Request authenticated = authenticator.authenticate(null, response);
 
-        assertThat(authenticated.header("Authorization"), matchesPattern("Basic dXNlcjE6dXNlcjE="));
+        assertThat(authenticated.header("Authorization")).matches("Basic dXNlcjE6dXNlcjE=");
     }
 
     @Test
@@ -68,6 +66,6 @@ public class BasicAuthenticatorTest {
         final Request result = authenticator.authenticate(null, response);
 
         // then
-        assertThat(result, is(nullValue()));
+        assertThat(result).isNull();
     }
 }

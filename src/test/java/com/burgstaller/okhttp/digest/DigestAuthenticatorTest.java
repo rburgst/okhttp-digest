@@ -3,6 +3,7 @@ package com.burgstaller.okhttp.digest;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
@@ -32,8 +33,6 @@ import okhttp3.Route;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 
 public class DigestAuthenticatorTest {
@@ -77,10 +76,10 @@ public class DigestAuthenticatorTest {
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
-        assertThat(authenticated.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
+        assertThat(authenticated.header("Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
                         "nonce=\"BBBBBB\", " +
-                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test
@@ -100,10 +99,10 @@ public class DigestAuthenticatorTest {
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
-        assertThat(authenticated.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
+        assertThat(authenticated.header("Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
                         "nonce=\"BBBBBB\", " +
-                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
 
         // when
         Request secondRequest = new Request.Builder()
@@ -111,10 +110,10 @@ public class DigestAuthenticatorTest {
                 .get()
                 .build();
         Request secondAuthenticatedRequest = authenticator.authenticateWithState(mockRoute, secondRequest);
-        assertThat(secondAuthenticatedRequest.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
+        assertThat(secondAuthenticatedRequest.header("Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
                         "nonce=\"BBBBBB\", " +
-                        "uri=\"/account\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+                        "uri=\"/account\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test
@@ -133,10 +132,10 @@ public class DigestAuthenticatorTest {
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
-        assertThat(authenticated.header("Proxy-Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"BBBBBB\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+        assertThat(authenticated.header("Proxy-Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
+                        "nonce=\"BBBBBB\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -178,11 +177,11 @@ public class DigestAuthenticatorTest {
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
         String authHeader = authenticated.header("Authorization");
-        assertThat(authHeader,
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"BBBBBB\", " +
-                  "uri=\"/path/to/resource\\?parameter=value&parameter2=value2\", " +
-                  "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+        assertThat(authHeader)
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
+                        "nonce=\"BBBBBB\", " +
+                        "uri=\"/path/to/resource\\?parameter=value&parameter2=value2\", " +
+                        "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test
@@ -202,11 +201,11 @@ public class DigestAuthenticatorTest {
         Request authenticated = authenticator.authenticate(null, response);
 
         String authHeader = authenticated.header("Authorization");
-        assertThat(authHeader,
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"BBBBBB\", " +
-                  "uri=\"/path/to/resource\\?parameter=value&parameter2=value2\", " +
-                  "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+        assertThat(authHeader)
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
+                        "nonce=\"BBBBBB\", " +
+                        "uri=\"/path/to/resource\\?parameter=value&parameter2=value2\", " +
+                        "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test
@@ -226,10 +225,10 @@ public class DigestAuthenticatorTest {
                 .build();
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
-        assertThat(authenticated.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"BBBBBB\", uri=\"/\", " +
-                  "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+        assertThat(authenticated.header("Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
+                        "nonce=\"BBBBBB\", uri=\"/\", " +
+                        "response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test
@@ -238,8 +237,8 @@ public class DigestAuthenticatorTest {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", " +
-                  "nonce=\"BBBBBB\", uri=\"/\", " +
-                  "response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                        "nonce=\"BBBBBB\", uri=\"/\", " +
+                        "response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -256,7 +255,7 @@ public class DigestAuthenticatorTest {
         final Request result = authenticator.authenticate(mockRoute, response);
 
         // then
-        assertThat(result, is(nullValue()));
+        assertThat(result).isNull();
     }
 
     @Test
@@ -265,7 +264,7 @@ public class DigestAuthenticatorTest {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -282,7 +281,7 @@ public class DigestAuthenticatorTest {
         final Request authenticated = authenticator.authenticate(null, response);
 
         // then
-        assertThat(authenticated, is(nullValue()));
+        assertThat(authenticated).isNull();
     }
 
     @Test
@@ -291,7 +290,7 @@ public class DigestAuthenticatorTest {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -308,9 +307,9 @@ public class DigestAuthenticatorTest {
         final Request authenticated = authenticator.authenticate(mockRoute, response);
 
         // then
-        assertThat(authenticated.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+        assertThat(authenticated.header("Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test
@@ -319,7 +318,7 @@ public class DigestAuthenticatorTest {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .header("Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -336,9 +335,9 @@ public class DigestAuthenticatorTest {
         final Request authenticated = authenticator.authenticate(mockRoute, response);
 
         // then
-        assertThat(authenticated.header("Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+        assertThat(authenticated.header("Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
 
@@ -348,7 +347,7 @@ public class DigestAuthenticatorTest {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .header("Proxy-Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -365,7 +364,7 @@ public class DigestAuthenticatorTest {
         final Request authenticated = authenticator.authenticate(null, response);
 
         // then
-        assertThat(authenticated, is(nullValue()));
+        assertThat(authenticated).isNull();
     }
 
     @Test
@@ -374,7 +373,7 @@ public class DigestAuthenticatorTest {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .header("Proxy-Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -391,9 +390,9 @@ public class DigestAuthenticatorTest {
         final Request authenticated = authenticator.authenticate(mockRoute, response);
 
         // then
-        assertThat(authenticated.header("Proxy-Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+        assertThat(authenticated.header("Proxy-Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test
@@ -402,7 +401,7 @@ public class DigestAuthenticatorTest {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .header("Proxy-Authorization", "Digest username=\"user1\", realm=\"myrealm\", nonce=\"AAAAAAA\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=00000001, cnonce=\"[0-9a-f]+\", algorithm=MD5")
                 .get()
                 .build();
         Response response = new Response.Builder()
@@ -419,9 +418,9 @@ public class DigestAuthenticatorTest {
         final Request authenticated = authenticator.authenticate(mockRoute, response);
 
         // then
-        assertThat(authenticated.header("Proxy-Authorization"),
-                matchesPattern("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
-                  "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5"));
+        assertThat(authenticated.header("Proxy-Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", nonce=\"BBBBBB\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     /**
@@ -445,17 +444,17 @@ public class DigestAuthenticatorTest {
     @Test
     public void testMultithreadedWWWAuthenticate() throws Exception {
         final DigestAuthenticatorTest test = this;
-        final ConcurrentHashMap<String,Exception> exceptions = new ConcurrentHashMap<>();
+        final ConcurrentHashMap<String, Exception> exceptions = new ConcurrentHashMap<>();
         ExecutorService executor = new ThreadPoolExecutor(20, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
-        for ( final Method method : this.getClass().getDeclaredMethods() ) {
-            if ( method.getName().startsWith("testWWWAuthenticate") &&
-                 ! method.getName().endsWith("shouldThrowException") ) {
+        for (final Method method : this.getClass().getDeclaredMethods()) {
+            if (method.getName().startsWith("testWWWAuthenticate") &&
+                    !method.getName().endsWith("shouldThrowException")) {
                 executor.execute(new Runnable() {
                     public void run() {
                         try {
                             System.out.println("invoking method=" + method.getName());
                             method.invoke(test);
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             exceptions.put(method.getName(), e);
                         }
                     }
@@ -465,11 +464,11 @@ public class DigestAuthenticatorTest {
         executor.shutdown();
         try {
             executor.awaitTermination(2, TimeUnit.MINUTES);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new IllegalStateException("Timeout trying to run testMultithreadedAuthenticate");
         }
-        if ( exceptions.size() > 0 ) {
-            for ( String methodName : exceptions.keySet() ) {
+        if (exceptions.size() > 0) {
+            for (String methodName : exceptions.keySet()) {
                 System.err.println("Test " + methodName + " failed under testMultithreadedAuthenticate:");
                 exceptions.get(methodName).printStackTrace();
             }
@@ -480,17 +479,17 @@ public class DigestAuthenticatorTest {
     @Test
     public void testMultithreadedProxyAuthenticate() throws Exception {
         final DigestAuthenticatorTest test = this;
-        final ConcurrentHashMap<String,Exception> exceptions = new ConcurrentHashMap<>();
+        final ConcurrentHashMap<String, Exception> exceptions = new ConcurrentHashMap<>();
         ExecutorService executor = new ThreadPoolExecutor(20, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue());
-        for ( final Method method : this.getClass().getDeclaredMethods() ) {
-            if ( method.getName().startsWith("testProxyAuthenticate") &&
-                 ! method.getName().endsWith("shouldThrowException") ) {
+        for (final Method method : this.getClass().getDeclaredMethods()) {
+            if (method.getName().startsWith("testProxyAuthenticate") &&
+                    !method.getName().endsWith("shouldThrowException")) {
                 executor.execute(new Runnable() {
                     public void run() {
                         try {
                             System.out.println("invoking method=" + method.getName());
                             method.invoke(test);
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             exceptions.put(method.getName(), e);
                         }
                     }
@@ -500,11 +499,11 @@ public class DigestAuthenticatorTest {
         executor.shutdown();
         try {
             executor.awaitTermination(2, TimeUnit.MINUTES);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new IllegalStateException("Timeout trying to run testMultithreadedAuthenticate");
         }
-        if ( exceptions.size() > 0 ) {
-            for ( String methodName : exceptions.keySet() ) {
+        if (exceptions.size() > 0) {
+            for (String methodName : exceptions.keySet()) {
                 System.err.println("Test " + methodName + " failed under testMultithreadedAuthenticate:");
                 exceptions.get(methodName).printStackTrace();
             }

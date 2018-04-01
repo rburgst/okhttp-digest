@@ -21,6 +21,7 @@ package com.burgstaller.okhttp.digest.fromhttpclient;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 
@@ -81,6 +82,16 @@ public class HttpEntityDigester implements BufferedSink {
 //        this.digester.update(b, off, len);
 
         return null;
+    }
+
+    @Override
+    public void write(Buffer source, long byteCount) throws IOException {
+
+    }
+
+    @Override
+    public int write(ByteBuffer byteBuffer) throws IOException {
+        return 0;
     }
 
     @Override
@@ -195,11 +206,6 @@ public class HttpEntityDigester implements BufferedSink {
     }
 
     @Override
-    public void write(Buffer source, long byteCount) throws IOException {
-
-    }
-
-    @Override
     public void flush() throws IOException {
 
     }
@@ -207,6 +213,11 @@ public class HttpEntityDigester implements BufferedSink {
     @Override
     public Timeout timeout() {
         return null;
+    }
+
+    @Override
+    public boolean isOpen() {
+        return false;
     }
 
     @Override

@@ -23,22 +23,20 @@ targetCompatibility = JavaVersion.VERSION_1_7
 repositories {
     mavenLocal()
     jcenter()
-    maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots"
-    }
 }
 
 ext {
-    okhttpVersion = "3.9.1"
+    okhttpVersion = "3.10.0"
 }
 
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-    compile "com.squareup.okhttp3:okhttp:${okhttpVersion}"
-    testCompile "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
-    testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
-    testCompile 'org.mockito:mockito-core:2.10.0'
+    implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
+    testImplementation "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
+    testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.assertj:assertj-core:3.9.1'
+    testImplementation 'org.mockito:mockito-core:2.15.0'
 }
 
 def siteUrl = 'https://github.com/rburgst/okhttp-digest'
@@ -91,5 +89,5 @@ task findConventions {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.5'
+    gradleVersion = '4.6'
 }

@@ -4,7 +4,6 @@ import com.burgstaller.okhttp.basic.BasicAuthenticator;
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 
-import org.hamcrest.text.MatchesPattern;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,7 +34,9 @@ import okhttp3.ResponseBody;
 import okhttp3.Route;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -81,7 +82,7 @@ public class AuthenticationCacheInterceptorTest {
         // Fill in authCache.
         // https://myhost.com => basic auth user1:user1
         givenCachedAuthenticationFor(dummyUrl, authCache);
-        assertEquals(1, authCache.size());
+        assertThat(authCache).hasSize(1);
 
         Interceptor interceptor = new AuthenticationCacheInterceptor(authCache);
 
@@ -100,7 +101,7 @@ public class AuthenticationCacheInterceptorTest {
         interceptor.intercept(new ChainAdapter(request, mockConnection) {
 
             @Override
-            public Response proceed(Request request) throws IOException {
+            public Response proceed(Request request) {
                 Response response = givenUnauthorizedServerResponse(request);
                 return response;
             }
@@ -157,7 +158,7 @@ public class AuthenticationCacheInterceptorTest {
     }
 
     private void thenAuthorizationHeaderShouldBePresent(String authorization) {
-        assertThat(authorization, MatchesPattern.matchesPattern("Basic dXNlcjE6dXNlcjE="));
+        assertThat(authorization).matches("Basic dXNlcjE6dXNlcjE=");
     }
 
     private String whenInterceptAuthenticationForUrl(Interceptor interceptor, final String url) throws IOException {
@@ -169,7 +170,7 @@ public class AuthenticationCacheInterceptorTest {
                 .build();
         interceptor.intercept(new ChainAdapter(request, mockConnection) {
             @Override
-            public Response proceed(Request request) throws IOException {
+            public Response proceed(Request request) {
                 final String authorization = request.header("Authorization");
                 authResultHeader.set(authorization);
                 return null;
@@ -188,7 +189,7 @@ public class AuthenticationCacheInterceptorTest {
 
         interceptor.intercept(new ChainAdapter(request, mockConnection) {
             @Override
-            public Response proceed(Request request) throws IOException {
+            public Response proceed(Request request) {
                 final String authorization = request.header("Authorization");
                 authResultHeader.set(authorization);
                 return null;
