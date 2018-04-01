@@ -1,3 +1,7 @@
+## v1.17
+
+* upgrade to okhttp 3.10.0
+
 ## v1.16
 
 * upgrade to okhttp 3.9.0
