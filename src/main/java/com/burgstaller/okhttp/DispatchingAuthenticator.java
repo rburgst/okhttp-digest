@@ -46,7 +46,7 @@ public class DispatchingAuthenticator implements CachingAuthenticator {
                 }
             }
         }
-        throw new IllegalArgumentException("unsupported auth scheme " + challenges);
+        return null;
     }
 
     @Override
