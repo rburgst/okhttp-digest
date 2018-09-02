@@ -1,3 +1,8 @@
+## v1.18
+
+* upgrade to okhttp 3.11.0
+* more flexible caching for multiple domains
+
 ## v1.17
 
 * upgrade to okhttp 3.10.0
