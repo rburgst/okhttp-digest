@@ -22,16 +22,21 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
  */
 public class AuthenticationCacheInterceptor implements Interceptor {
     private final Map<String, CachingAuthenticator> authCache;
+    private final CacheKeyProvider cacheKeyProvider;
+
+    public AuthenticationCacheInterceptor(Map<String, CachingAuthenticator> authCache, CacheKeyProvider cacheKeyProvider) {
+        this.authCache = authCache;
+        this.cacheKeyProvider = cacheKeyProvider;
+    }
 
     public AuthenticationCacheInterceptor(Map<String, CachingAuthenticator> authCache) {
-        this.authCache = authCache;
+        this(authCache, new DefaultCacheKeyProvider());
     }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
         final Request request = chain.request();
-        final HttpUrl url = request.url();
-        final String key = CachingUtils.getCachingKey(url);
+        final String key = cacheKeyProvider.getCachingKey(request);
         CachingAuthenticator authenticator = authCache.get(key);
         Request authRequest = null;
         Connection connection = chain.connection();

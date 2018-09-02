@@ -19,10 +19,16 @@ import java.util.Map;
 public class CachingAuthenticatorDecorator implements Authenticator {
     private final Authenticator innerAuthenticator;
     private final Map<String, CachingAuthenticator> authCache;
+    private final CacheKeyProvider cacheKeyProvider;
 
-    public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, CachingAuthenticator> authCache) {
+    public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, CachingAuthenticator> authCache, CacheKeyProvider cacheKeyProvider) {
         this.innerAuthenticator = innerAuthenticator;
         this.authCache = authCache;
+        this.cacheKeyProvider = cacheKeyProvider;
+    }
+
+    public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, CachingAuthenticator> authCache) {
+        this(innerAuthenticator, authCache, new DefaultCacheKeyProvider());
     }
 
     @Override
@@ -31,8 +37,7 @@ public class CachingAuthenticatorDecorator implements Authenticator {
         if (authenticated != null) {
             String authorizationValue = authenticated.header("Authorization");
             if (authorizationValue != null && innerAuthenticator instanceof CachingAuthenticator) {
-                final HttpUrl url = authenticated.url();
-                final String key = CachingUtils.getCachingKey(url);
+                final String key = cacheKeyProvider.getCachingKey(authenticated);
                 authCache.put(key, (CachingAuthenticator) innerAuthenticator);
             }
         }
