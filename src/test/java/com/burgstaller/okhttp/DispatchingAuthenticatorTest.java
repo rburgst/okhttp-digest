@@ -35,9 +35,7 @@ import okhttp3.ResponseBody;
 import okhttp3.Route;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -97,6 +95,28 @@ public class DispatchingAuthenticatorTest {
 
         // then
         assertEquals(request, result);
+    }
+
+    /**
+     * Makes sure that we dont throw an exception for unknown schemes.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAuthenticate__whenUnknownScheme__shouldNotThrowException() throws Exception {
+        // given
+        CachingAuthenticator auth1 = mock(CachingAuthenticator.class);
+
+        // only digest, no basic auth
+        DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
+                .with("digest", auth1)
+                .build();
+
+        // when
+        Request request = authenticator.authenticate(mockRoute, createUnauthorizedServerResponse());
+
+        // then
+        assertNull(request);
     }
 
     @Test
