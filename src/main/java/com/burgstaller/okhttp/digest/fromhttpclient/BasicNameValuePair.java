@@ -20,7 +20,6 @@
 package com.burgstaller.okhttp.digest.fromhttpclient;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 
 public class BasicNameValuePair implements NameValuePair, Cloneable, Serializable {

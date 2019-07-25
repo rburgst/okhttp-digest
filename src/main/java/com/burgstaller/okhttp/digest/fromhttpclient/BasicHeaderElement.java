@@ -41,7 +41,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     }
 
     public BasicHeaderElement(String name, String value) {
-        this(name, value, (NameValuePair[])null);
+        this(name, value, null);
     }
 
     public String getName() {
@@ -53,7 +53,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     }
 
     public NameValuePair[] getParameters() {
-        return (NameValuePair[])((NameValuePair[])this.parameters.clone());
+        return this.parameters.clone();
     }
 
     public int getParameterCount() {

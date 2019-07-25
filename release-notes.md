@@ -1,3 +1,7 @@
+## v2.0
+
+* upgrade to okhttp 4.0.1 (requires java 8 now)
+
 ## v1.18
 
 * upgrade to okhttp 3.11.0

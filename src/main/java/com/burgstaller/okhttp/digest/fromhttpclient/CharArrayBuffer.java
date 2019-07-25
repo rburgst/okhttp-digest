@@ -79,7 +79,7 @@ public final class CharArrayBuffer {
 
     public void append(CharArrayBuffer b) {
         if(b != null) {
-            this.append((char[])b.buffer, 0, b.len);
+            this.append(b.buffer, 0, b.len);
         }
     }
 

@@ -33,6 +33,7 @@ import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmEx
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     };
 
     private AtomicReference<Map<String,String>> parametersRef = new AtomicReference<>();
-    private Charset credentialsCharset = Charset.forName("ASCII");
+    private Charset credentialsCharset = StandardCharsets.US_ASCII;
     private final Credentials credentials;
     private String lastNonce;
     private long nounceCount;
@@ -230,7 +231,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         // Add method name and request-URI to the parameter map
         if (route == null || !route.requiresTunnel()) {
             final String method = request.method();
-            final String uri = RequestLine.requestPath(request.url());
+            final String uri = RequestLine.INSTANCE.requestPath(request.url());
             parameters.put("methodname", method);
             parameters.put("uri", uri);
         } else {
@@ -510,11 +511,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         if (data == null) {
             throw new IllegalArgumentException("Parameter may not be null");
         } else {
-            try {
-                return data.getBytes("US-ASCII");
-            } catch (UnsupportedEncodingException e) {
-                throw new Error("HttpClient requires ASCII support", e);
-            }
+            return data.getBytes(StandardCharsets.US_ASCII);
         }
     }
 

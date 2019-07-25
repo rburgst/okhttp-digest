@@ -234,4 +234,9 @@ public class HttpEntityDigester implements BufferedSink {
         return this.digest;
     }
 
+    @Override
+    public Buffer getBuffer() {
+        return buffer;
+    }
+
 }

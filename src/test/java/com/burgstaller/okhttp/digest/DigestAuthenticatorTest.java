@@ -1,10 +1,8 @@
 package com.burgstaller.okhttp.digest;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
@@ -21,6 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.SocketFactory;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import okhttp3.Address;
 import okhttp3.Authenticator;
 import okhttp3.Connection;
@@ -30,10 +31,6 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
-
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.BDDMockito.given;
 
 public class DigestAuthenticatorTest {
 

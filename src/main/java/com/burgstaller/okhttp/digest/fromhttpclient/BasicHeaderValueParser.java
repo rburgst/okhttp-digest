@@ -185,7 +185,7 @@ public class BasicHeaderValueParser {
 
         if(terminated) {
             cursor.updatePos(pos);
-            return this.createNameValuePair(name, (String)null);
+            return this.createNameValuePair(name, null);
         } else {
             int i1 = pos;
             boolean qouted = false;
@@ -210,7 +210,6 @@ public class BasicHeaderValueParser {
 
             int var15;
             for(var15 = pos; i1 < var15 && HTTP.isWhitespace(buffer.charAt(i1)); ++i1) {
-                ;
             }
 
             while(var15 > i1 && HTTP.isWhitespace(buffer.charAt(var15 - 1))) {
