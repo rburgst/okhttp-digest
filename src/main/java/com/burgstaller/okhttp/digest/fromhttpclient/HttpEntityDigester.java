@@ -45,7 +45,6 @@ public class HttpEntityDigester implements BufferedSink {
         this.buffer = new Buffer();
     }
 
-
     @Override
     public Buffer buffer() {
         return buffer;
@@ -79,7 +78,7 @@ public class HttpEntityDigester implements BufferedSink {
         if (this.closed) {
             throw new IOException("Stream has been already closed");
         }
-//        this.digester.update(b, off, len);
+        // this.digester.update(b, off, len);
 
         return null;
     }
@@ -87,6 +86,11 @@ public class HttpEntityDigester implements BufferedSink {
     @Override
     public void write(Buffer source, long byteCount) throws IOException {
 
+    }
+
+    @Override
+    public BufferedSink write(ByteString arg0, int arg1, int arg2) throws IOException {
+        return null;
     }
 
     @Override
@@ -174,32 +178,40 @@ public class HttpEntityDigester implements BufferedSink {
         return this;
     }
 
-    @Override public OutputStream outputStream() {
+    @Override
+    public OutputStream outputStream() {
         return new OutputStream() {
-            @Override public void write(int b) throws IOException {
-                if (closed) throw new IOException("closed");
+            @Override
+            public void write(int b) throws IOException {
+                if (closed)
+                    throw new IOException("closed");
                 buffer.writeByte((byte) b);
                 emitCompleteSegments();
             }
 
-            @Override public void write(byte[] data, int offset, int byteCount) throws IOException {
-                if (closed) throw new IOException("closed");
+            @Override
+            public void write(byte[] data, int offset, int byteCount) throws IOException {
+                if (closed)
+                    throw new IOException("closed");
                 buffer.write(data, offset, byteCount);
                 emitCompleteSegments();
             }
 
-            @Override public void flush() throws IOException {
+            @Override
+            public void flush() throws IOException {
                 // For backwards compatibility, a flush() on a closed stream is a no-op.
                 if (!closed) {
                     HttpEntityDigester.this.flush();
                 }
             }
 
-            @Override public void close() throws IOException {
+            @Override
+            public void close() throws IOException {
                 HttpEntityDigester.this.close();
             }
 
-            @Override public String toString() {
+            @Override
+            public String toString() {
                 return HttpEntityDigester.this + ".outputStream()";
             }
         };

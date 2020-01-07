@@ -20,16 +20,6 @@
 
 package com.burgstaller.okhttp.digest;
 
-import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueFormatter;
-import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueParser;
-import com.burgstaller.okhttp.digest.fromhttpclient.BasicNameValuePair;
-import com.burgstaller.okhttp.digest.fromhttpclient.CharArrayBuffer;
-import com.burgstaller.okhttp.digest.fromhttpclient.HeaderElement;
-import com.burgstaller.okhttp.digest.fromhttpclient.HttpEntityDigester;
-import com.burgstaller.okhttp.digest.fromhttpclient.NameValuePair;
-import com.burgstaller.okhttp.digest.fromhttpclient.ParserCursor;
-import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmException;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -46,8 +36,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueFormatter;
+import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueParser;
+import com.burgstaller.okhttp.digest.fromhttpclient.BasicNameValuePair;
+import com.burgstaller.okhttp.digest.fromhttpclient.CharArrayBuffer;
+import com.burgstaller.okhttp.digest.fromhttpclient.HeaderElement;
+import com.burgstaller.okhttp.digest.fromhttpclient.HttpEntityDigester;
+import com.burgstaller.okhttp.digest.fromhttpclient.NameValuePair;
+import com.burgstaller.okhttp.digest.fromhttpclient.ParserCursor;
+import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmException;
 
 import okhttp3.Headers;
 import okhttp3.Request;
@@ -58,7 +57,8 @@ import okhttp3.internal.http.RequestLine;
 import okhttp3.internal.platform.Platform;
 
 /**
- * Digest authenticator which is more or less the same code ripped out of Apache HTTP Client 4.3.1.
+ * Digest authenticator which is more or less the same code ripped out of Apache
+ * HTTP Client 4.3.1.
  */
 public class DigestAuthenticator implements CachingAuthenticator {
 
@@ -79,12 +79,10 @@ public class DigestAuthenticator implements CachingAuthenticator {
      *
      * @see #encode(byte[])
      */
-    private static final char[] HEXADECIMAL = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
-            'e', 'f'
-    };
+    private static final char[] HEXADECIMAL = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
+            'e', 'f' };
 
-    private AtomicReference<Map<String,String>> parametersRef = new AtomicReference<>();
+    private AtomicReference<Map<String, String>> parametersRef = new AtomicReference<>();
     private Charset credentialsCharset = StandardCharsets.US_ASCII;
     private final Credentials credentials;
     private String lastNonce;
@@ -98,13 +96,11 @@ public class DigestAuthenticator implements CachingAuthenticator {
         this.credentials = credentials;
     }
 
-    private static MessageDigest createMessageDigest(
-            final String digAlg) {
+    private static MessageDigest createMessageDigest(final String digAlg) {
         try {
             return MessageDigest.getInstance(digAlg);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(
-                    "Unsupported algorithm in HTTP Digest authentication: " + digAlg, e);
+            throw new IllegalArgumentException("Unsupported algorithm in HTTP Digest authentication: " + digAlg, e);
         }
     }
 
@@ -119,7 +115,6 @@ public class DigestAuthenticator implements CachingAuthenticator {
         rnd.nextBytes(tmp);
         return encode(tmp);
     }
-
 
     /**
      * Encodes the 128 bit (16 bytes) MD5 digest into a 32 characters long
@@ -141,8 +136,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         return new String(buffer);
     }
 
-    protected void parseChallenge(
-            final String buffer, int pos, int len, Map<String, String> params) {
+    protected void parseChallenge(final String buffer, int pos, int len, Map<String, String> params) {
 
         BasicHeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
         ParserCursor cursor = new ParserCursor(pos, buffer.length());
@@ -162,11 +156,12 @@ public class DigestAuthenticator implements CachingAuthenticator {
     @Override
     public synchronized Request authenticate(Route route, Response response) throws IOException {
         String header = findDigestHeader(response.headers(), getHeaderName(response.code()));
-        Map<String,String> parameters = new HashMap<>();
+        Map<String, String> parameters = new HashMap<>();
         parseChallenge(header, 7, header.length() - 7, parameters);
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
-        // save these parameters so future requests don't need the challenge response every time
+        // save these parameters so future requests don't need the challenge response
+        // every time
         parametersRef.set(Collections.unmodifiableMap(parameters));
 
         // sanity check for issue #22
@@ -202,16 +197,17 @@ public class DigestAuthenticator implements CachingAuthenticator {
     @Override
     public Request authenticateWithState(Route route, Request request) throws IOException {
         // make sure we don't modify the values in shared parametersRef instance
-        Map<String,String> ref = parametersRef.get();
-        Map<String,String> parameters = ref == null
-                ? new HashMap<String,String>() : new HashMap<String,String>(ref);
+        Map<String, String> ref = parametersRef.get();
+        Map<String, String> parameters = ref == null ? new HashMap<String, String>() : new HashMap<String, String>(ref);
         return authenticateWithState(route, request, parameters);
     }
 
-    private Request authenticateWithState(Route route, Request request, Map<String,String> parameters) throws IOException {
+    private Request authenticateWithState(Route route, Request request, Map<String, String> parameters)
+            throws IOException {
         final String realm = parameters.get("realm");
         if (realm == null) {
-            // missing realm, this would mean that the authenticator is not initialized for this
+            // missing realm, this would mean that the authenticator is not initialized for
+            // this
             // request. (e.g. if you configured the DispatchingAuthenticator.
             return null;
         }
@@ -224,7 +220,8 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
         if (havePreviousDigestAuthorizationAndShouldAbort(request, nonce, isStale)) {
             // prevent infinite loops when the password is wrong
-            Platform.get().log("Previous digest authentication with same nonce failed, returning null", Platform.WARN, null);
+            Platform.get().log("Previous digest authentication with same nonce failed, returning null", Platform.WARN,
+                    null);
             return null;
         }
 
@@ -247,21 +244,21 @@ public class DigestAuthenticator implements CachingAuthenticator {
             parameters.put("charset", credentialsCharset);
         }
         final NameValuePair digestHeader = createDigestHeader(credentials, request, parameters);
-        return request.newBuilder()
-                .header(digestHeader.getName(), digestHeader.getValue())
-                .build();
+        return request.newBuilder().header(digestHeader.getName(), digestHeader.getValue()).build();
     }
 
     /**
-     * Checks if the previous request had a digest authorization and its nonce matches to the
-     * current server nonce. If that is the case, then we would simply attempt the same authentication
-     * again and would fail again and again, ...
+     * Checks if the previous request had a digest authorization and its nonce
+     * matches to the current server nonce. If that is the case, then we would
+     * simply attempt the same authentication again and would fail again and again,
+     * ...
      *
      * @param request the previous request
      * @param nonce   the current server nonce.
-     * @param isStale when {@code true} then the server told us that the nonce was stale.
-     * @return {@code true} in case the previous request already was authenticating to the current
-     * server nonce.
+     * @param isStale when {@code true} then the server told us that the nonce was
+     *                stale.
+     * @return {@code true} in case the previous request already was authenticating
+     *         to the current server nonce.
      */
     private boolean havePreviousDigestAuthorizationAndShouldAbort(Request request, String nonce, boolean isStale) {
         final String headerKey;
@@ -291,11 +288,9 @@ public class DigestAuthenticator implements CachingAuthenticator {
      * @param credentials User credentials
      * @return The digest-response as String.
      */
-//    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("LSC_LITERAL_STRING_COMPARISON")
-    private synchronized NameValuePair createDigestHeader(
-            final Credentials credentials,
-            final Request request,
-            final Map<String,String> parameters) throws AuthenticationException {
+    // @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("LSC_LITERAL_STRING_COMPARISON")
+    private synchronized NameValuePair createDigestHeader(final Credentials credentials, final Request request,
+            final Map<String, String> parameters) throws AuthenticationException {
         final String uri = parameters.get("uri");
         final String realm = parameters.get("realm");
         final String nonce = parameters.get("nonce");
@@ -371,8 +366,8 @@ public class DigestAuthenticator implements CachingAuthenticator {
         // 3.2.2.2: Calculating digest
         if ("MD5-sess".equalsIgnoreCase(algorithm)) {
             // H( unq(username-value) ":" unq(realm-value) ":" passwd )
-            //      ":" unq(nonce-value)
-            //      ":" unq(cnonce-value)
+            // ":" unq(nonce-value)
+            // ":" unq(cnonce-value)
 
             // calculated one per session
             sb.setLength(0);
@@ -402,8 +397,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
                     qop = QOP_AUTH;
                     a2 = method + ':' + uri;
                 } else {
-                    throw new AuthenticationException("Qop auth-int cannot be used with " +
-                            "a non-repeatable entity");
+                    throw new AuthenticationException("Qop auth-int cannot be used with " + "a non-repeatable entity");
                 }
             } else {
                 // code straight from
@@ -432,9 +426,8 @@ public class DigestAuthenticator implements CachingAuthenticator {
             digestValue = sb.toString();
         } else {
             sb.setLength(0);
-            sb.append(hasha1).append(':').append(nonce).append(':').append(nc).append(':')
-                    .append(cnonce).append(':').append(qop == QOP_AUTH_INT ? "auth-int" : "auth")
-                    .append(':').append(hasha2);
+            sb.append(hasha1).append(':').append(nonce).append(':').append(nc).append(':').append(cnonce).append(':')
+                    .append(qop == QOP_AUTH_INT ? "auth-int" : "auth").append(':').append(hasha2);
             digestValue = sb.toString();
         }
 
@@ -473,13 +466,11 @@ public class DigestAuthenticator implements CachingAuthenticator {
                 buffer.append(", ");
             }
             final String name = param.getName();
-            final boolean noQuotes = ("nc".equals(name) || "qop".equals(name)
-                    || "algorithm".equals(name));
+            final boolean noQuotes = ("nc".equals(name) || "qop".equals(name) || "algorithm".equals(name));
             BasicHeaderValueFormatter.DEFAULT.formatNameValuePair(buffer, param, !noQuotes);
         }
         return new BasicNameValuePair(headerKey, buffer.toString());
     }
-
 
     /**
      * Returns the charset used for the credentials.
@@ -524,6 +515,8 @@ public class DigestAuthenticator implements CachingAuthenticator {
     }
 
     private static class AuthenticationException extends IllegalStateException {
+        private static final long serialVersionUID = 1L;
+
         public AuthenticationException(String s) {
             super(s);
         }

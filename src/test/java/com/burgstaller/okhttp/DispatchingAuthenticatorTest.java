@@ -61,8 +61,8 @@ public class DispatchingAuthenticatorTest {
         MockitoAnnotations.initMocks(this);
 
         // setup some dummy data so that we dont get NPEs
-        Address address = new Address("localhost", 8080, mockDns, socketFactory, null, null,
-                null, proxyAuthenticator, null, Collections.singletonList(Protocol.HTTP_1_1),
+        Address address = new Address("localhost", 8080, mockDns, socketFactory, null, null, null, proxyAuthenticator,
+                null, Collections.singletonList(Protocol.HTTP_1_1),
                 Collections.singletonList(ConnectionSpec.MODERN_TLS), proxySelector);
         InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);
         mockRoute = new Route(address, proxy, inetSocketAddress);
@@ -70,8 +70,8 @@ public class DispatchingAuthenticatorTest {
     }
 
     /**
-     * Makes sure that in the case of cached authenticators the authenticators are called in the
-     * order in which they were registered.
+     * Makes sure that in the case of cached authenticators the authenticators are
+     * called in the order in which they were registered.
      *
      * @throws Exception
      */
@@ -81,10 +81,8 @@ public class DispatchingAuthenticatorTest {
         CachingAuthenticator auth1 = mock(CachingAuthenticator.class);
         CachingAuthenticator auth2 = mock(CachingAuthenticator.class);
 
-        DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
-                .with("digest", auth1)
-                .with("basic", auth2)
-                .build();
+        DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder().with("digest", auth1)
+                .with("basic", auth2).build();
         Request request = createDummyRequest();
         // make sure that the 2nd authenticator will not be called
         given(auth2.authenticateWithState(eq(mockRoute), eq(request))).willThrow(IllegalStateException.class);
@@ -108,9 +106,7 @@ public class DispatchingAuthenticatorTest {
         CachingAuthenticator auth1 = mock(CachingAuthenticator.class);
 
         // only digest, no basic auth
-        DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
-                .with("digest", auth1)
-                .build();
+        DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder().with("digest", auth1).build();
 
         // when
         Request request = authenticator.authenticate(mockRoute, createUnauthorizedServerResponse());
@@ -125,9 +121,7 @@ public class DispatchingAuthenticatorTest {
         final BasicAuthenticator basicAuthenticator = new BasicAuthenticator(credentials);
         final DigestAuthenticator digestAuthenticator = new DigestAuthenticator(credentials);
         DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
-                .with("digest", digestAuthenticator)
-                .with("basic", basicAuthenticator)
-                .build();
+                .with("digest", digestAuthenticator).with("basic", basicAuthenticator).build();
 
         Request request = authenticator.authenticate(mockRoute, createUnauthorizedServerResponse());
         assertNotNull(request);
@@ -144,9 +138,7 @@ public class DispatchingAuthenticatorTest {
         final BasicAuthenticator basicAuthenticator = new BasicAuthenticator(credentials);
         final DigestAuthenticator digestAuthenticator = new DigestAuthenticator(credentials);
         DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
-                .with("basic", basicAuthenticator)
-                .with("digest", digestAuthenticator)
-                .build();
+                .with("basic", basicAuthenticator).with("digest", digestAuthenticator).build();
 
         Request request = authenticator.authenticate(mockRoute, createUnauthorizedServerResponse());
         assertNotNull(request);
@@ -161,14 +153,9 @@ public class DispatchingAuthenticatorTest {
         return interceptor.intercept(new ChainAdapter(createDummyRequest(), mockConnection) {
             @Override
             public Response proceed(Request request) throws IOException {
-                return new Response.Builder()
-                        .body(ResponseBody.create(MediaType.parse("text/plain"), "Unauthorized"))
-                        .request(request)
-                        .protocol(Protocol.HTTP_1_1)
-                        .code(HTTP_UNAUTHORIZED)
-                        .message("Unauthorized")
-                        .header("WWW-Authenticate", "Basic realm=\"myrealm\"")
-                        .build();
+                return new Response.Builder().body(ResponseBody.create(MediaType.parse("text/plain"), "Unauthorized"))
+                        .request(request).protocol(Protocol.HTTP_1_1).code(HTTP_UNAUTHORIZED).message("Unauthorized")
+                        .header("WWW-Authenticate", "Basic realm=\"myrealm\"").build();
             }
 
         });
@@ -176,10 +163,7 @@ public class DispatchingAuthenticatorTest {
 
     private Request createDummyRequest() {
         final String dummyUrl = "https://myhost.com/path";
-        return new Request.Builder()
-                .url(dummyUrl)
-                .get()
-                .build();
+        return new Request.Builder().url(dummyUrl).get().build();
     }
 
 }
