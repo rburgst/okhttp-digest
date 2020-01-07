@@ -46,7 +46,7 @@ client = builder
 ```
 
 [ ![Download](https://api.bintray.com/packages/rburgst/android/okhttp-digest/images/download.svg) ](https://bintray.com/rburgst/android/okhttp-digest/_latestVersion)
-[![Build Status](https://travis-ci.org/rburgst/okhttp-digest.svg?branch=master)](https://travis-ci.org/rburgst/okhttp-digest)
+[![Build Status](https://travis-ci.com/rburgst/okhttp-digest.svg?branch=master)](https://travis-ci.com/rburgst/okhttp-digest.svg?branch=master)
 
 ## Use via gradle
 
