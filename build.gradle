@@ -87,7 +87,3 @@ task findConventions {
         println project.getConvention()
     }
 }
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
-}
