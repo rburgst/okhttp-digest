@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueFormatter;
@@ -156,7 +157,11 @@ public class DigestAuthenticator implements CachingAuthenticator {
     @Override
     public synchronized Request authenticate(Route route, Response response) throws IOException {
         String header = findDigestHeader(response.headers(), getHeaderName(response.code()));
-        Map<String, String> parameters = new HashMap<>();
+        // note that it might be that at the time where we set the parametersRef we already have someone in parallel
+        // trying to access it, therefore we use a concurrent map to avoid concurrent modification exceptions
+        // if 2 requests happen at the same time while we are still negotiating the nonce etc, we will do the
+        // negotiation handshake multiple times, well this cannot be helped really. One of the contestants will win
+        Map<String, String> parameters = new ConcurrentHashMap<>();
         parseChallenge(header, 7, header.length() - 7, parameters);
         // first copy all request headers to our params array
         copyHeaderMap(response.headers(), parameters);
@@ -198,7 +203,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     public Request authenticateWithState(Route route, Request request) throws IOException {
         // make sure we don't modify the values in shared parametersRef instance
         Map<String, String> ref = parametersRef.get();
-        Map<String, String> parameters = ref == null ? new HashMap<String, String>() : new HashMap<String, String>(ref);
+        Map<String, String> parameters = ref == null ? new ConcurrentHashMap<>() : new ConcurrentHashMap<>(ref);
         return authenticateWithState(route, request, parameters);
     }
 
@@ -207,8 +212,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         final String realm = parameters.get("realm");
         if (realm == null) {
             // missing realm, this would mean that the authenticator is not initialized for
-            // this
-            // request. (e.g. if you configured the DispatchingAuthenticator.
+            // this request. (e.g. if you configured the DispatchingAuthenticator).
             return null;
         }
         final String nonce = parameters.get("nonce");
