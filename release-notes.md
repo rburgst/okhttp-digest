@@ -1,3 +1,8 @@
+## v2.2
+
+* upgrade to okhttp 4.4
+* fix concurrent request scenarios (#62)
+
 ## v2.1
 
 * upgrade to okhttp 4.3 (requires java 8 now)
