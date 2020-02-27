@@ -26,7 +26,7 @@ repositories {
 }
 
 ext {
-    okhttpVersion = "4.3.0"
+    okhttpVersion = "4.4.0"
 }
 
 
