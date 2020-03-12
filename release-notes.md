@@ -1,3 +1,8 @@
+## v1.19
+
+* upgrade to okhttp 3.12.6
+* fix concurrent request scenarios (#62)
+
 ## v2.2
 
 * upgrade to okhttp 4.4
