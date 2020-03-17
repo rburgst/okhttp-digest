@@ -42,7 +42,7 @@ import static org.junit.Assert.fail;
  * docker run -p 13128:13128 -it ubuntu
  * </pre>).
  */
-//@Ignore
+@Ignore
 public class ProxyAuthenticationManualTest {
 
     private static final HttpLoggingInterceptor.Logger LOGGER = new HttpLoggingInterceptor.Logger() {
