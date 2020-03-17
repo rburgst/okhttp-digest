@@ -1,3 +1,7 @@
+## v2.3
+
+* fix exception upon preemptive proxy auth after redirect (#64) 
+
 ## v1.19
 
 * upgrade to okhttp 3.12.6
