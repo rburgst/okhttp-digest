@@ -157,6 +157,9 @@ public class DigestAuthenticator implements CachingAuthenticator {
     @Override
     public synchronized Request authenticate(Route route, Response response) throws IOException {
         String header = findDigestHeader(response.headers(), getHeaderName(response.code()));
+        if (header == null) {
+            return null;
+        }
         // note that it might be that at the time where we set the parametersRef we already have someone in parallel
         // trying to access it, therefore we use a concurrent map to avoid concurrent modification exceptions
         // if 2 requests happen at the same time while we are still negotiating the nonce etc, we will do the
@@ -195,6 +198,10 @@ public class DigestAuthenticator implements CachingAuthenticator {
             if (header.startsWith("Digest")) {
                 return header;
             }
+        }
+        // note that we dont support preemtive auth for now
+        if (authHeaders.contains("OkHttp-Preemptive")) {
+            return null;
         }
         throw new IllegalArgumentException("unsupported auth scheme: " + authHeaders);
     }

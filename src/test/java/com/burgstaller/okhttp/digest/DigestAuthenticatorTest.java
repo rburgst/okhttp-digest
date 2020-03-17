@@ -1,5 +1,6 @@
 package com.burgstaller.okhttp.digest;
 
+import static java.net.HttpURLConnection.HTTP_PROXY_AUTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
@@ -133,6 +134,26 @@ public class DigestAuthenticatorTest {
                 .matches("Digest username=\"user1\", realm=\"myrealm\", " +
                         "nonce=\"BBBBBB\", " +
                         "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
+    }
+
+    @Test
+    public void testProxyAuthenticate__withPreemtive__shouldReturnNull() throws Exception {
+        Request dummyRequest = new Request.Builder()
+                .url("http://edition.cnn.com")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HTTP_PROXY_AUTH)
+                .message("Preemptive Authenticate")
+                .sentRequestAtMillis(-1L)
+                .receivedResponseAtMillis(-1L)
+                .header("Proxy-Authenticate", "OkHttp-Preemptive")
+                .build();
+        Request authenticated = authenticator.authenticate(mockRoute, response);
+
+        assertThat(authenticated).isNull();
     }
 
     @Test(expected = IllegalArgumentException.class)

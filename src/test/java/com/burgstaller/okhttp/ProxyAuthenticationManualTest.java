@@ -34,8 +34,15 @@ import static org.junit.Assert.fail;
  *     <dt>PROXY_PASSWORD</dt><dd>The proxy server password for the users 'okhttp_basic' and
  *     'okhttp_digest'</dd>
  * </dl>
+ * You can set up an authenticated squid proxy by following these instructions:
+ * <a href="https://blog.mafr.de/2013/06/16/setting-up-a-web-proxy-with-squid/">
+ *     https://blog.mafr.de/2013/06/16/setting-up-a-web-proxy-with-squid/</a>
+ * (eg. inside a docker container via
+ * <pre>
+ * docker run -p 13128:13128 -it ubuntu
+ * </pre>).
  */
-@Ignore
+//@Ignore
 public class ProxyAuthenticationManualTest {
 
     private static final HttpLoggingInterceptor.Logger LOGGER = new HttpLoggingInterceptor.Logger() {
@@ -116,6 +123,10 @@ public class ProxyAuthenticationManualTest {
         }
     }
 
+    /**
+     * This test requires additional BASIC squid proxy auth setup which is not explained in the article linked above.
+     * So its normal that this fails.
+     */
     @Test
     public void testConnection_WithProxyBasicAuthWithoutTunnel_Expect200() throws IOException {
         final BasicAuthenticator authenticator = givenBasicAuthenticator();
@@ -128,6 +139,10 @@ public class ProxyAuthenticationManualTest {
         assertEquals(200, response.code());
     }
 
+    /**
+     * This test requires additional BASIC squid proxy auth setup which is not explained in the article linked above.
+     * So its normal that this fails.
+     */
     @Test
     public void testConnection_WithProxyBasicAuthWithTunnel_Expect200() throws IOException {
         final BasicAuthenticator authenticator = givenBasicAuthenticator();
@@ -140,7 +155,10 @@ public class ProxyAuthenticationManualTest {
         assertEquals(200, response.code());
     }
 
-
+    /**
+     * This test requires additional BASIC squid proxy auth setup which is not explained in the article linked above.
+     * So its normal that this fails.
+     */
     @Test
     public void testConnection_WithProxyBasicAuthWithNotAllowedSites_Expect403() throws IOException {
         final BasicAuthenticator authenticator = givenBasicAuthenticator();
@@ -177,8 +195,12 @@ public class ProxyAuthenticationManualTest {
         assertEquals(200, response.code());
     }
 
+    /**
+     * This test requires a more elaborate setup with disabled sites (which is not found in the above setup article),
+     * so this test will typically fail).
+     */
     @Test
-    public void testConnection_WithProxyDigestAuthWithNotAllowdSites_Expect403() throws IOException {
+    public void testConnection_WithProxyDigestAuthWithNotAllowedSites_Expect403() throws IOException {
         final DigestAuthenticator authenticator = givenDigestAuthenticator();
 
         final OkHttpClient client = givenHttpClientWithProxyAuth(authenticator);
