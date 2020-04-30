@@ -41,6 +41,12 @@ import static org.junit.Assert.fail;
  * <pre>
  * docker run -p 13128:13128 -it ubuntu
  * </pre>).
+ * <p>
+ *
+ * Additional instructions can be found here:
+ * <a href="https://github.com/softwaremill/sttp/blob/master/manual-tests/proxy-digest-test.md">
+ *     https://github.com/softwaremill/sttp/blob/master/manual-tests/proxy-digest-test.md</a>
+ * </p>
  */
 @Ignore
 public class ProxyAuthenticationManualTest {
