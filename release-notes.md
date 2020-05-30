@@ -1,3 +1,8 @@
+## v2.4
+
+* upgrade to okhttp 4.7.2
+* add support to specify basic authentication encoding (#66) 
+
 ## v2.3
 
 * fix exception upon preemptive proxy auth after redirect (#64) 

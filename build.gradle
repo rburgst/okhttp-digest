@@ -26,9 +26,11 @@ repositories {
 }
 
 ext {
-    okhttpVersion = "4.4.0"
+    okhttpVersion = "4.7.2"
 }
 
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = "UTF-8"
 
 dependencies {
     implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"

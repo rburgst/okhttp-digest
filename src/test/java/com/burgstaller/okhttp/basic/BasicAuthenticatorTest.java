@@ -1,15 +1,14 @@
 package com.burgstaller.okhttp.basic;
 
 import com.burgstaller.okhttp.digest.Credentials;
-
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,6 +43,26 @@ public class BasicAuthenticatorTest {
         Request authenticated = authenticator.authenticate(null, response);
 
         assertThat(authenticated.header("Authorization")).matches("Basic dXNlcjE6dXNlcjE=");
+    }
+
+    @Test
+    public void testAuthenticate__withUtf8__shouldProperlyEncode() throws Exception {
+        BasicAuthenticator utf8Authenticator = new BasicAuthenticator(new Credentials("user1", "päßwörd"), StandardCharsets.UTF_8);
+
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .message("Unauthorized")
+                .header("WWW-Authenticate", "Basic realm=\"myrealm\"")
+                .build();
+        Request authenticated = utf8Authenticator.authenticate(null, response);
+
+        assertThat(authenticated.header("Authorization")).matches("Basic dXNlcjE6cMOkw593w7ZyZA==");
     }
 
     @Test
