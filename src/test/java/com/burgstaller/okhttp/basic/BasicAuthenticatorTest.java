@@ -5,7 +5,9 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +45,32 @@ public class BasicAuthenticatorTest {
         Request authenticated = authenticator.authenticate(null, response);
 
         assertThat(authenticated.header("Authorization")).matches("Basic dXNlcjE6dXNlcjE=");
+    }
+
+    @Test
+    public void testNullCredentials() throws Exception {
+        //both are null
+        try {
+            Credentials creds = new Credentials(null, null);
+        } catch (Exception e) {
+            assertThat(e.getClass()).isEqualTo(IllegalArgumentException.class);
+        }
+
+        //username is null
+        try {
+            Credentials creds = new Credentials(null, "password");
+        } catch (Exception e) {
+            assertThat(e.getClass()).isEqualTo(IllegalArgumentException.class);
+        }
+
+        //password is null
+        try {
+            Credentials creds = new Credentials("username", null);
+        } catch (Exception e) {
+            assertThat(e.getClass()).isEqualTo(IllegalArgumentException.class);
+        }
+
+
     }
 
     @Test
