@@ -8,6 +8,9 @@ public class Credentials {
     private String password;
 
     public Credentials(String userName, String password) {
+        if (userName == null || password == null) {
+            throw new IllegalArgumentException("username and password cannot be null");
+        }
         this.userName = userName;
         this.password = password;
     }
