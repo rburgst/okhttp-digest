@@ -8,3 +8,7 @@ bin
 /out
 .idea/*
 *.iml
+.classpath
+.project
+.settings
+.java-version
