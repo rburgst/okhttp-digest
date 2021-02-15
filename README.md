@@ -45,7 +45,7 @@ client = builder
         .build();
 ```
 
-[ ![Download](https://api.bintray.com/packages/rburgst/android/okhttp-digest/images/download.svg) ](https://bintray.com/rburgst/android/okhttp-digest/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.rburgst/okhttp-digest/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.rburgst/okhttp-digest)
 [![Build Status](https://travis-ci.com/rburgst/okhttp-digest.svg?branch=master)](https://travis-ci.com/rburgst/okhttp-digest.svg?branch=master)
 
 ## Use via gradle
