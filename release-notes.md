@@ -1,3 +1,8 @@
+## v2.5
+
+* republished at mavencentral under `io.github.rburgst:okhttp-digest`
+* Added a null check for inputs to Credentials
+
 ## v2.4
 
 * upgrade to okhttp 4.7.2

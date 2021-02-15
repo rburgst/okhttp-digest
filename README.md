@@ -51,5 +51,5 @@ client = builder
 ## Use via gradle
 
 ```groovy
-compile 'com.burgstaller:okhttp-digest:2.5'
+implementation 'io.github.rburgst:okhttp-digest:3.0'
 ```
