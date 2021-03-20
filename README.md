@@ -2,6 +2,15 @@
 A digest authenticator for okhttp. Most of the code is 
 ported from Apache Http Client.
 
+### Important
+
+This artifact has moved from jcenter to maven central! The coordinates have changed from
+
+`com.burgstaller:okhttp-digest:<version>` to `io.github.rburgst:okhttp-digest:<version>`
+
+For more details, see [#71](https://github.com/rburgst/okhttp-digest/issues/71).
+
+
 # Usage
 
 ```java
@@ -51,5 +60,5 @@ client = builder
 ## Use via gradle
 
 ```groovy
-implementation 'com.burgstaller:okhttp-digest:1.20'
+implementation 'io.github.rburgst:okhttp-digest:1.21'
 ```
