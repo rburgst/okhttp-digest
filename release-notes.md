@@ -1,3 +1,20 @@
+## v1.21
+
+* republished at mavencentral under `io.github.rburgst:okhttp-digest`
+* Added a null check for inputs to Credentials
+
+### Important
+
+This artifact has moved from jcenter to maven central! The coordinates have changed from
+
+`com.burgstaller:okhttp-digest:1.x` to `io.github.rburgst:okhttp-digest:1.21`
+
+For more details, see [#71](https://github.com/rburgst/okhttp-digest/issues/71).
+
+## v1.20 
+
+* no changes but fix publishing on bintray
+
 ## v1.19
 
 * upgrade to okhttp 3.12.6
