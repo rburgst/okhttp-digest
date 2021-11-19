@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -72,6 +73,29 @@ public class DigestAuthenticatorTest {
                 .header("WWW-Authenticate",
                         "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
                 .build();
+        Request authenticated = authenticator.authenticate(mockRoute, response);
+
+        assertThat(authenticated.header("Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
+                        "nonce=\"BBBBBB\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
+    }
+
+    @Test
+    public void testWWWAuthenticate_utf8_charset_shouldWork() throws Exception {
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .message("Unauthorized")
+                .header("WWW-Authenticate",
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
+                .build();
+        authenticator = new DigestAuthenticator(new Credentials("user1", "useràéè"), Charset.forName("UTF-8"));
         Request authenticated = authenticator.authenticate(mockRoute, response);
 
         assertThat(authenticated.header("Authorization"))

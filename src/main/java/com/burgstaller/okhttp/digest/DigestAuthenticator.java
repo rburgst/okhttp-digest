@@ -84,7 +84,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             'e', 'f' };
 
     private AtomicReference<Map<String, String>> parametersRef = new AtomicReference<>();
-    private Charset credentialsCharset = StandardCharsets.US_ASCII;
+    private Charset credentialsCharset;
     private final Credentials credentials;
     private String lastNonce;
     private long nounceCount;
@@ -95,6 +95,12 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     public DigestAuthenticator(Credentials credentials) {
         this.credentials = credentials;
+        this.credentialsCharset = StandardCharsets.US_ASCII;
+    }
+
+    public DigestAuthenticator(Credentials credentials, Charset credentialsCharset) {
+        this.credentials = credentials;
+        this.credentialsCharset = credentialsCharset;
     }
 
     private static MessageDigest createMessageDigest(final String digAlg) {
