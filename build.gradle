@@ -25,10 +25,11 @@ targetCompatibility = JavaVersion.VERSION_1_8
 repositories {
     mavenLocal()
     jcenter()
+    mavenCentral()
 }
 
 ext {
-    okhttpVersion = "4.7.2"
+    okhttpVersion = "4.9.2"
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -38,9 +39,9 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
     testImplementation "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
     testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.assertj:assertj-core:3.9.1'
-    testImplementation 'org.mockito:mockito-core:2.15.0'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
+    testImplementation 'org.mockito:mockito-core:4.0.0'
 }
 
 modifyPom {

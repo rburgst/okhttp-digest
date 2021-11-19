@@ -1,3 +1,8 @@
+## v2.6
+
+* added optional support for custom credential charsets
+* upgrade to okhttp 4.9.2
+
 ## v2.5
 
 * republished at mavencentral under `io.github.rburgst:okhttp-digest`
