@@ -1,17 +1,14 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-}
-
 plugins {
-    id 'nu.studer.credentials' version '2.1'
+    id 'nu.studer.credentials' version '3.0'
     id 'java-library'
-    id "com.bmuschko.nexus" version "2.3.1"
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
+    id 'maven-publish'
+    id 'signing'
 }
 
-String signingPassword = credentials['ossSigningPassword'] ?: ''
-String nexusPassword = credentials.nexusPassword ?: ''
+String signingPassword = credentials.forKey('ossSigningPassword') ?: ''
+String nexusPassword = credentials.forKey('nexusPassword') ?: ''
+String nexusUser = credentials.forKey('nexusUsername') ?: ''
 
 project.ext['signing.password'] = signingPassword
 project.ext.nexusPassword = nexusPassword
@@ -24,7 +21,6 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenLocal()
-    jcenter()
     mavenCentral()
 }
 
@@ -44,45 +40,64 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:4.0.0'
 }
 
-modifyPom {
-    project {
-        name 'okhttp-digest'
-        description 'A digest authenticator for okhttp.'
-        url 'https://github.com/rburgst/okhttp-digest'
-        inceptionYear '2015'
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
 
-        scm {
-            connection 'scm:git:git@github.com:rburgst/okhttp-digest.git'
-            developerConnection 'scm:git:git@github.com:rburgst/okhttp-digest.git'
-            url 'https://github.com/rburgst/okhttp-digest'
-        }
 
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
-            }
-        }
-
-        developers {
-            developer {
-                id 'rburgst'
-                name 'Rainer Burgstaller'
-                email 'rburgst@gmail.com'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            pom {
+                name = 'okhttp-digest'
+                description = 'A digest authenticator for okhttp.'
+                url = 'https://github.com/rburgst/okhttp-digest'
+                inceptionYear = '2015'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'rburgst'
+                        name = 'Rainer Burgstaller'
+                        email = 'rburgst@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:rburgst/okhttp-digest.git'
+                    developerConnection = 'scm:git:git@github.com:rburgst/okhttp-digest.git'
+                    url = 'https://github.com/rburgst/okhttp-digest'
+                }
             }
         }
     }
 }
 
-extraArchive {
-    sources = true
-    tests = false
-    javadoc = true
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = nexusUser
+            password = nexusPassword
+        }
+    }
 }
 
-nexus {
-    sign = true
-    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+signing {
+    required { !project.version.endsWith("-SNAPSHOT") && !project.hasProperty("skipSigning") }
+    if (project.findProperty("signingKey")) {
+        useInMemoryPgpKeys(findProperty("signingKey"), signingPassword)
+    }
+    sign publishing.publications.maven
 }
+
+//do not generate extra load on Nexus with new staging repository if signing fails
+tasks.withType(io.github.gradlenexus.publishplugin.InitializeNexusStagingRepository).configureEach {
+    shouldRunAfter(tasks.withType(Sign))
+}
+
