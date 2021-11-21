@@ -76,6 +76,16 @@ publishing {
             }
         }
     }
+
+
+    if (project.hasProperty('repositoryUrl')) {
+        repositories {
+            maven {
+                name = "localRepo"
+                url = uri(project.repositoryUrl)
+            }
+        }
+    }
 }
 
 
