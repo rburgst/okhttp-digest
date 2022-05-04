@@ -1,6 +1,7 @@
 ## v2.7
 
 * upgrade to okhttp 4.9.3
+* fix #75 where under certain conditions the lib would produce NoSuchField errors
 
 ## v2.6
 

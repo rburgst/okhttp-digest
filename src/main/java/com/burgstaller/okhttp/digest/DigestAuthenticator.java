@@ -20,42 +20,20 @@
 
 package com.burgstaller.okhttp.digest;
 
+import com.burgstaller.okhttp.digest.fromhttpclient.*;
+import okhttp3.*;
+import okhttp3.internal.http.RequestLine;
+import okhttp3.internal.platform.Platform;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-
-import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueFormatter;
-import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueParser;
-import com.burgstaller.okhttp.digest.fromhttpclient.BasicNameValuePair;
-import com.burgstaller.okhttp.digest.fromhttpclient.CharArrayBuffer;
-import com.burgstaller.okhttp.digest.fromhttpclient.HeaderElement;
-import com.burgstaller.okhttp.digest.fromhttpclient.HttpEntityDigester;
-import com.burgstaller.okhttp.digest.fromhttpclient.NameValuePair;
-import com.burgstaller.okhttp.digest.fromhttpclient.ParserCursor;
-import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmException;
-
-import okhttp3.Headers;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.Route;
-import okhttp3.internal.http.RequestLine;
-import okhttp3.internal.platform.Platform;
 
 /**
  * Digest authenticator which is more or less the same code ripped out of Apache
@@ -245,7 +223,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         // Add method name and request-URI to the parameter map
         if (route == null || !route.requiresTunnel()) {
             final String method = request.method();
-            final String uri = RequestLine.INSTANCE.requestPath(request.url());
+            final String uri = this.requestPath(request.url());
             parameters.put("methodname", method);
             parameters.put("uri", uri);
         } else {
@@ -262,6 +240,21 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
         final NameValuePair digestHeader = createDigestHeader(credentials, request, parameters);
         return request.newBuilder().header(digestHeader.getName(), digestHeader.getValue()).build();
+    }
+
+    /**
+     * Copy of implementation in `RequestLine.requestPath` as this sometimes produces field not found errors.
+     * @param url
+     * @return
+     */
+    private String requestPath(final HttpUrl url) {
+        String path = url.encodedPath();
+        String query = url.encodedQuery();
+        if (query != null) {
+            return path + "?" + query;
+        } else {
+            return path;
+        }
     }
 
     /**
@@ -530,6 +523,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     public void setProxy(boolean proxy) {
         this.proxy = proxy;
     }
+
 
     private static class AuthenticationException extends IllegalStateException {
         private static final long serialVersionUID = 1L;
