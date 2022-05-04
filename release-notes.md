@@ -1,3 +1,7 @@
+## v2.7
+
+* upgrade to okhttp 4.9.3
+
 ## v2.6
 
 * added optional support for custom credential charsets
