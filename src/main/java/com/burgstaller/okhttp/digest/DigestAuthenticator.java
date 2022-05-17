@@ -73,7 +73,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     public DigestAuthenticator(Credentials credentials) {
         this.credentials = credentials;
-        this.credentialsCharset = StandardCharsets.US_ASCII;
+        this.credentialsCharset = StandardCharsets.UTF_8;
     }
 
     public DigestAuthenticator(Credentials credentials, Charset credentialsCharset) {
@@ -441,7 +441,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
             digestValue = sb.toString();
         }
 
-        final String digest = encode(digester.digest(getAsciiBytes(digestValue)));
+        final String digest = encode(digester.digest(getUtf8Bytes(digestValue)));
 
         final StringBuilder buffer = new StringBuilder(128);
         final String headerKey;
@@ -508,11 +508,11 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
     }
 
-    public static byte[] getAsciiBytes(String data) {
+    public static byte[] getUtf8Bytes(String data) {
         if (data == null) {
             throw new IllegalArgumentException("Parameter may not be null");
         } else {
-            return data.getBytes(StandardCharsets.US_ASCII);
+            return data.getBytes(StandardCharsets.UTF_8);
         }
     }
 
