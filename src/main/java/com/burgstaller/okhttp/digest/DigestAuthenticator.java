@@ -187,7 +187,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         if (authHeaders.contains("OkHttp-Preemptive")) {
             return null;
         }
-        throw new IllegalArgumentException("unsupported auth scheme: " + authHeaders);
+        throw new IOException("unsupported auth scheme: " + authHeaders);
     }
 
     @Override
