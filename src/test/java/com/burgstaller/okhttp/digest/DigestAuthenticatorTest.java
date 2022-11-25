@@ -180,7 +180,7 @@ public class DigestAuthenticatorTest {
         assertThat(authenticated).isNull();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IOException.class)
     public void testWWWAuthenticate__withInvalidWWWAuthHeader__shouldThrowException() throws Exception {
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
@@ -196,7 +196,7 @@ public class DigestAuthenticatorTest {
                 .build();
         try {
             authenticator.authenticate(null, response);
-        } catch (IllegalArgumentException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             throw e;
         }
