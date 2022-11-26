@@ -158,7 +158,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
         // sanity check for issue #22
         if (parameters.get("nonce") == null) {
-            throw new IllegalArgumentException("missing nonce in challenge header: " + header);
+            throw new IOException("missing nonce in challenge header: " + header);
         }
 
         return authenticateWithState(route, response.request(), parameters);
@@ -176,7 +176,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         return "";
     }
 
-    private String findDigestHeader(Headers headers, String name) {
+    private String findDigestHeader(Headers headers, String name) throws IOException {
         final List<String> authHeaders = headers.values(name);
         for (String header : authHeaders) {
             if (header.startsWith("Digest")) {
@@ -187,7 +187,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         if (authHeaders.contains("OkHttp-Preemptive")) {
             return null;
         }
-        throw new IllegalArgumentException("unsupported auth scheme: " + authHeaders);
+        throw new IOException("unsupported auth scheme: " + authHeaders);
     }
 
     @Override
@@ -208,7 +208,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
         final String nonce = parameters.get("nonce");
         if (nonce == null) {
-            throw new IllegalArgumentException("missing nonce in challenge");
+            throw new IOException("missing nonce in challenge");
         }
         String stale = parameters.get("stale");
         boolean isStale = "true".equalsIgnoreCase(stale);
@@ -525,7 +525,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     }
 
 
-    private static class AuthenticationException extends IllegalStateException {
+    private static class AuthenticationException extends IOException {
         private static final long serialVersionUID = 1L;
 
         public AuthenticationException(String s) {
