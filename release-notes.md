@@ -1,3 +1,8 @@
+## v3.0
+
+* upgrade to okhttp 4.10.0
+* fix #79 where Authenticators threw `IllegalArgumentException` rather than the `IoException` as requested by okhttp api
+
 ## v2.7
 
 * upgrade to okhttp 4.9.3
