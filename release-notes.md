@@ -1,3 +1,6 @@
+## v3.0.1
+* fix #80 where digest authentication did not work properly when using a proxy
+
 ## v3.0
 
 * upgrade to okhttp 4.10.0
