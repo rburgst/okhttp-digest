@@ -217,6 +217,21 @@ public class ProxyAuthenticationManualTest {
         assertEquals(403, response.code());
     }
 
+    @Test
+    public void testConnection_WithProxyWithoutAuth_tryGetAuthenticated__Expect200() throws IOException {
+        final DigestAuthenticator authenticator = givenDigestAuthenticator();
+        final OkHttpClient client = new OkHttpClient.Builder()
+                .proxy(proxy)
+                .authenticator(authenticator)
+                .addNetworkInterceptor(LOGGING_INTERCEPTOR)
+                .build();
+        final Request request = new Request.Builder()
+                .url("https://httpbin.org/digest-auth/auth/okhttp_basic/test")
+                .build();
+        Response response = client.newCall(request).execute();
+        assertEquals(200, response.code());
+    }
+
     private BasicAuthenticator givenBasicAuthenticator() {
         System.out.println("using basic authenticator with user " + authUser + ", password " + authPass);
         return new BasicAuthenticator(

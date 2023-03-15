@@ -20,7 +20,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,6 +44,15 @@ public class DigestAuthenticatorTest {
     @Before
     public void beforeMethod() {
         Connection mockConnection = mock(Connection.class);
+        Route route = createDefaultRoute();
+        mockRoute = route;
+        given(mockConnection.route()).willReturn(mockRoute);
+
+        authenticator = new DigestAuthenticator(new Credentials("user1", "user1"));
+    }
+
+    @NotNull
+    private static Route createDefaultRoute() {
         Dns mockDns = mock(Dns.class);
         SocketFactory socketFactory = mock(SocketFactory.class);
         Authenticator proxyAuthenticator = mock(Authenticator.class);
@@ -53,14 +64,54 @@ public class DigestAuthenticatorTest {
                 null, proxyAuthenticator, null, Collections.singletonList(Protocol.HTTP_1_1),
                 Collections.singletonList(ConnectionSpec.MODERN_TLS), proxySelector);
         InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);
-        mockRoute = new Route(address, proxy, inetSocketAddress);
-        given(mockConnection.route()).willReturn(mockRoute);
+        return new Route(address, proxy, inetSocketAddress);
+    }
 
-        authenticator = new DigestAuthenticator(new Credentials("user1", "user1"));
+    @NotNull
+    private static Route createProxyRoute() {
+        Dns mockDns = mock(Dns.class);
+        SocketFactory socketFactory = mock(SocketFactory.class);
+        Authenticator proxyAuthenticator = mock(Authenticator.class);
+        ProxySelector proxySelector = mock(ProxySelector.class);
+        Proxy proxy = mock(Proxy.class);
+        given(proxy.type()).willReturn(Proxy.Type.HTTP);
+
+        SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
+
+        Address address = new Address("localhost", 8080, mockDns, socketFactory, sslSocketFactory, null,
+                null, proxyAuthenticator, null, Collections.singletonList(Protocol.HTTP_1_1),
+                Collections.singletonList(ConnectionSpec.MODERN_TLS), proxySelector);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);
+        return new Route(address, proxy, inetSocketAddress);
     }
 
     @Test
     public void testWWWAuthenticate_shouldWork() throws Exception {
+        Request dummyRequest = new Request.Builder()
+                .url("http://www.google.com")
+                .get()
+                .build();
+        Response response = new Response.Builder()
+                .request(dummyRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(401)
+                .message("Unauthorized")
+                .header("WWW-Authenticate",
+                        "Digest realm=\"myrealm\", nonce=\"BBBBBB\", algorithm=MD5, qop=\"auth\"")
+                .build();
+        Request authenticated = authenticator.authenticate(mockRoute, response);
+
+        assertThat(authenticated.header("Authorization"))
+                .matches("Digest username=\"user1\", realm=\"myrealm\", " +
+                        "nonce=\"BBBBBB\", " +
+                        "uri=\"/\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
+    }
+
+    @Test
+    public void testWWWAuthenticate__withProxy__shouldWork() throws Exception {
+        // proxy always requires tunnel
+        mockRoute = createProxyRoute();
+
         Request dummyRequest = new Request.Builder()
                 .url("http://www.google.com")
                 .get()
@@ -135,7 +186,7 @@ public class DigestAuthenticatorTest {
         assertThat(secondAuthenticatedRequest.header("Authorization"))
                 .matches("Digest username=\"user1\", realm=\"myrealm\", " +
                         "nonce=\"BBBBBB\", " +
-                        "uri=\"/account\", response=\"[0-9a-f]+\", qop=auth, nc=000000\\d\\d, cnonce=\"[0-9a-f]+\", algorithm=MD5");
+                        "uri=\"/account\", response=\"[0-9a-f]+\", qop=auth, nc=000000[0-9a-f]{2}, cnonce=\"[0-9a-f]+\", algorithm=MD5");
     }
 
     @Test

@@ -221,14 +221,14 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
 
         // Add method name and request-URI to the parameter map
-        if (route == null || !route.requiresTunnel()) {
-            final String method = request.method();
-            final String uri = this.requestPath(request.url());
+        if (parameters.get("proxy-authenticate") != null) {
+            final String method = "CONNECT";
+            final String uri = request.url().host() + ':' + request.url().port();
             parameters.put("methodname", method);
             parameters.put("uri", uri);
         } else {
-            final String method = "CONNECT";
-            final String uri = request.url().host() + ':' + request.url().port();
+            final String method = request.method();
+            final String uri = this.requestPath(request.url());
             parameters.put("methodname", method);
             parameters.put("uri", uri);
         }
