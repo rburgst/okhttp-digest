@@ -22,7 +22,6 @@ package com.burgstaller.okhttp.digest;
 
 import com.burgstaller.okhttp.digest.fromhttpclient.*;
 import okhttp3.*;
-import okhttp3.internal.http.RequestLine;
 import okhttp3.internal.platform.Platform;
 
 import java.io.IOException;
@@ -51,7 +50,6 @@ public class DigestAuthenticator implements CachingAuthenticator {
     private static final int QOP_MISSING = 0;
     private static final int QOP_AUTH_INT = 1;
     private static final int QOP_AUTH = 2;
-    private static final String TAG = "OkDigest";
     /**
      * Hexa values used when creating 32 character long digest in HTTP DigestScheme
      * in case of authentication.
@@ -63,6 +61,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     private AtomicReference<Map<String, String>> parametersRef = new AtomicReference<>();
     private Charset credentialsCharset;
+    private final Random random;
     private final Credentials credentials;
     private String lastNonce;
     private long nounceCount;
@@ -74,14 +73,22 @@ public class DigestAuthenticator implements CachingAuthenticator {
     public DigestAuthenticator(Credentials credentials) {
         this.credentials = credentials;
         this.credentialsCharset = StandardCharsets.US_ASCII;
+        this.random = new SecureRandom();
     }
 
     public DigestAuthenticator(Credentials credentials, Charset credentialsCharset) {
         this.credentials = credentials;
         this.credentialsCharset = credentialsCharset;
+        this.random = new SecureRandom();
     }
 
-    private static MessageDigest createMessageDigest(final String digAlg) {
+    public DigestAuthenticator(Credentials credentials, Charset credentialsCharset,Random random) {
+        this.credentials = credentials;
+        this.credentialsCharset = credentialsCharset;
+        this.random = random;
+    }
+
+    private MessageDigest createMessageDigest(final String digAlg) {
         try {
             return MessageDigest.getInstance(digAlg);
         } catch (final Exception e) {
@@ -94,10 +101,9 @@ public class DigestAuthenticator implements CachingAuthenticator {
      *
      * @return The cnonce value as String.
      */
-    public static String createCnonce() {
-        final SecureRandom rnd = new SecureRandom();
+    public String createCnonce() {
         final byte[] tmp = new byte[8];
-        rnd.nextBytes(tmp);
+        random.nextBytes(tmp);
         return encode(tmp);
     }
 
@@ -108,7 +114,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
      * @param binaryData array containing the digest
      * @return encoded MD5, or <CODE>null</CODE> if encoding failed
      */
-    static String encode(final byte[] binaryData) {
+    private String encode(final byte[] binaryData) {
         final int n = binaryData.length;
         final char[] buffer = new char[n * 2];
         for (int i = 0; i < n; i++) {
@@ -508,7 +514,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         }
     }
 
-    public static byte[] getAsciiBytes(String data) {
+    public byte[] getAsciiBytes(String data) {
         if (data == null) {
             throw new IllegalArgumentException("Parameter may not be null");
         } else {
@@ -525,7 +531,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
     }
 
 
-    private static class AuthenticationException extends IOException {
+    private class AuthenticationException extends IOException {
         private static final long serialVersionUID = 1L;
 
         public AuthenticationException(String s) {
