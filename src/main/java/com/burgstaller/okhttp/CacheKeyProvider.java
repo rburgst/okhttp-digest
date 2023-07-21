@@ -1,16 +1,18 @@
 package com.burgstaller.okhttp;
 
-import okhttp3.Request;
+public interface CacheKeyProvider<T> {
 
-/**
- * Provides the caching key for the given request. Can be used to share passwords accross multiple subdomains.
- */
-public interface CacheKeyProvider {
+    /**
+     *
+     * @return true if the key is forged from a Proxy Object.
+     */
+    boolean applyToProxy();
     /**
      * Provides the caching key for the given request. Can be used to share passwords accross multiple subdomains.
      *
      * @param request the http request.
      * @return the cache key.
      */
-    String getCachingKey(Request request);
+    String getCachingKey(T request);
 }
+

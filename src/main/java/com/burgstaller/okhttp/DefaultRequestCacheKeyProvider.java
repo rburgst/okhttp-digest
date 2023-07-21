@@ -6,7 +6,12 @@ import okhttp3.Request;
 /**
  * The default version of the cache key provider, which simply takes the request URL / port for
  */
-public final class DefaultCacheKeyProvider implements CacheKeyProvider {
+public final class DefaultRequestCacheKeyProvider implements CacheKeyProvider<Request> {
+    @Override
+    public boolean applyToProxy() {
+        return false;
+    }
+
     /**
      * Provides the caching key for the given request. Can be used to share passwords accross multiple subdomains.
      *

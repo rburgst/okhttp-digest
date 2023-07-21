@@ -27,7 +27,7 @@ public class CachingAuthenticatorDecorator implements Authenticator {
     }
 
     public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, CachingAuthenticator> authCache) {
-        this(innerAuthenticator, authCache, new DefaultCacheKeyProvider());
+        this(innerAuthenticator, authCache, new DefaultRequestCacheKeyProvider());
     }
 
     @Override

@@ -49,7 +49,25 @@ DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
 
 client = builder
         .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
-        .addInterceptor(new AuthenticationCacheInterceptor(authCache))
+        .addInterceptor(new AuthenticationCacheInterceptor(authCache,new DefaultRequestCacheKeyProvider()))
+        .addNetworkInterceptor(logger)
+        .build();
+```
+If you want to cache Proxy credentials, you need to add a NetworkInterceptor : 
+
+```java
+client = builder
+        .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
+        .addNetworkInterceptor(new AuthenticationCacheInterceptor(authCache,new DefaultProxyCacheKeyProvider()))
+        .addNetworkInterceptor(logger)
+        .build();
+```
+You can also combine Proxy AND Web site Authentication : 
+```java
+client = builder
+        .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
+        .addNetworkInterceptor(new AuthenticationCacheInterceptor(authCache,new DefaultProxyCacheKeyProvider()))
+        .addInterceptor(new AuthenticationCacheInterceptor(authCache,new DefaultRequestCacheKeyProvider()))        
         .addNetworkInterceptor(logger)
         .build();
 ```
