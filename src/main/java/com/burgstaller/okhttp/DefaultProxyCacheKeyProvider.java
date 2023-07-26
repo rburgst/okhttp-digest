@@ -3,7 +3,7 @@ package com.burgstaller.okhttp;
 import java.net.Proxy;
 
 /**
- * The default version of the cache key provider, which simply calls the java.net.Proxy.toString() method to generate key.
+ * The default version of the cache key provider, which simply calls the {@link java.net.Proxy#toString()} method to generate key.
  */
 public final class DefaultProxyCacheKeyProvider implements CacheKeyProvider<Proxy> {
     @Override
@@ -13,7 +13,7 @@ public final class DefaultProxyCacheKeyProvider implements CacheKeyProvider<Prox
 
     /**
      *
-     * @param proxy
+     * @param proxy {@link java.net.Proxy} used to get the cache key.
      * @return the cache key.
      */
     @Override
