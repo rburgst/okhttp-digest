@@ -1,11 +1,11 @@
 package com.burgstaller.okhttp;
 
-import java.util.concurrent.TimeUnit;
-
 import okhttp3.Call;
 import okhttp3.Connection;
 import okhttp3.Interceptor;
 import okhttp3.Request;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for mock interceptors.

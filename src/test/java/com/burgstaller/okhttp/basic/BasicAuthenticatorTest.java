@@ -4,10 +4,8 @@ import com.burgstaller.okhttp.digest.Credentials;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +22,7 @@ public class BasicAuthenticatorTest {
 
     private BasicAuthenticator authenticator;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         authenticator = new BasicAuthenticator(new Credentials("user1", "user1"));
     }

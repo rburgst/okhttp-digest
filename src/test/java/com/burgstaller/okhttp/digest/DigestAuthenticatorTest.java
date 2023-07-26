@@ -1,11 +1,12 @@
 package com.burgstaller.okhttp.digest;
 
-import static java.net.HttpURLConnection.HTTP_PROXY_AUTH;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNull;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -13,35 +14,20 @@ import java.net.Proxy;
 import java.net.ProxySelector;
 import java.nio.charset.Charset;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
-
-import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
-
-import okhttp3.Address;
-import okhttp3.Authenticator;
-import okhttp3.Connection;
-import okhttp3.ConnectionSpec;
-import okhttp3.Dns;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.Route;
+import static java.net.HttpURLConnection.HTTP_PROXY_AUTH;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class DigestAuthenticatorTest {
 
     private Route mockRoute;
     private DigestAuthenticator authenticator;
 
-    @Before
+    @BeforeEach
     public void beforeMethod() {
         Connection mockConnection = mock(Connection.class);
         Route route = createDefaultRoute();

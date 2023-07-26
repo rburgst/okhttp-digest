@@ -4,15 +4,6 @@ import com.burgstaller.okhttp.AuthenticationCacheInterceptor;
 import com.burgstaller.okhttp.CachingAuthenticatorDecorator;
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -21,13 +12,17 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit test for basic authenticator.
@@ -46,7 +41,7 @@ public class BasicAuthenticatorWithMockWebserverTest {
     private MockResponse successResponse;
     private Credentials credentials;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         credentials = new Credentials("user1", "user1");
         sut = new BasicAuthenticator(credentials);

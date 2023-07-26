@@ -3,12 +3,13 @@ package com.burgstaller.okhttp;
 import com.burgstaller.okhttp.basic.BasicAuthenticator;
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
-
-import org.junit.Before;
-import org.junit.Test;
+import okhttp3.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -17,21 +18,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.net.SocketFactory;
-
-import okhttp3.Address;
-import okhttp3.Authenticator;
-import okhttp3.Connection;
-import okhttp3.ConnectionSpec;
-import okhttp3.Dns;
-import okhttp3.Interceptor;
-import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.Route;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +46,7 @@ public class AuthenticationCacheInterceptorTest {
     @Mock
     Proxy proxy;
 
-    @Before
+    @BeforeEach
     public void beforeMethod() {
         MockitoAnnotations.initMocks(this);
 
