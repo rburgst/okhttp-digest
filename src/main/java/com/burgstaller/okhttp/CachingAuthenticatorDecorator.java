@@ -26,17 +26,31 @@ public class CachingAuthenticatorDecorator implements Authenticator {
         this.cacheKeyProvider = cacheKeyProvider;
     }
 
-    public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, CachingAuthenticator> authCache) {
-        this(innerAuthenticator, authCache, new DefaultRequestCacheKeyProvider());
+    public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, CachingAuthenticator> authCache,boolean proxy) {
+        this(innerAuthenticator, authCache, proxy?new DefaultProxyCacheKeyProvider():new DefaultRequestCacheKeyProvider());
     }
 
+    public CachingAuthenticatorDecorator(Authenticator innerAuthenticator, Map<String, CachingAuthenticator> authCache) {
+        this(innerAuthenticator, authCache, false);
+    }
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
         Request authenticated = innerAuthenticator.authenticate(route, response);
         if (authenticated != null) {
-            String authorizationValue = authenticated.header("Authorization");
+            String authorizationValue;
+            if(cacheKeyProvider.applyToProxy()){
+                authorizationValue = authenticated.header("Proxy-Authorization");
+            }else{
+                authorizationValue = authenticated.header("Authorization");
+            }
+
             if (authorizationValue != null && innerAuthenticator instanceof CachingAuthenticator) {
-                final String key = cacheKeyProvider.getCachingKey(authenticated);
+                String key;
+                if(cacheKeyProvider.applyToProxy()){
+                    key = cacheKeyProvider.getCachingKey(route.proxy());
+                }else {
+                    key = cacheKeyProvider.getCachingKey(authenticated);
+                }
                 authCache.put(key, (CachingAuthenticator) innerAuthenticator);
             }
         }
