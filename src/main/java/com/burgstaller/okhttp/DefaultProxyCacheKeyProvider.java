@@ -18,6 +18,6 @@ public final class DefaultProxyCacheKeyProvider implements CacheKeyProvider<Prox
      */
     @Override
     public String getCachingKey(Proxy proxy) {
-        return proxy!=null?proxy.toString():null;
+        return proxy != null ? proxy.toString() : null;
     }
 }
