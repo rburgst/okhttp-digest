@@ -47,27 +47,24 @@ public class AuthenticationCacheInterceptor implements Interceptor {
         // Cached response was used, but it produced unauthorized response (cache expired).
         int responseCode = response != null ? response.code() : 0;
 
-        if (authenticator != null && (
-                (cacheKeyProvider.applyToProxy() && responseCode == HTTP_PROXY_AUTH) ||
-                        !cacheKeyProvider.applyToProxy() && responseCode == HTTP_UNAUTHORIZED)
-        ) {
-            response = removeCacheEntry(chain, key, request, response);
+        //authentication was against a web site
+        if (authenticator != null && (!cacheKeyProvider.applyToProxy() && responseCode == HTTP_UNAUTHORIZED)){
+            // Remove cached authenticator and resend request
+            if (authCache.remove(key) != null) {
+                response.body().close();
+                Platform.get().log("Cached authentication expired. Sending a new request.", Platform.INFO, null);
+                // Force sending a new request without "Authorization" header
+                response = chain.proceed(request);
+            }
         }
+        //authentication against a proxy
+        if (authenticator != null && (cacheKeyProvider.applyToProxy() && responseCode == HTTP_PROXY_AUTH)){
+            authCache.remove(key);
+            //interceptor at the proxy level is a Network Interceptor which does not permit to call proceed more than once.
+            //in this case, we don't close the request and call chain.proceed(request) another time
+        }
+
         return response;
     }
 
-    private Response removeCacheEntry(Chain chain, String key, Request request, Response response) throws IOException {
-        // Remove cached authenticator and resend request
-        if (authCache.remove(key) != null) {
-            response.body().close();
-            Platform.get().log("Cached authentication expired. Sending a new request.", Platform.INFO, null);
-            // Force sending a new request without "Authorization" header
-            //interceptor at the proxy level is a Network Interceptor which does not permit to call proceed more than once.
-            if (!cacheKeyProvider.applyToProxy()) {
-                response = chain.proceed(request);
-            }
-            return response;
-        }
-        return response;
-    }
 }
