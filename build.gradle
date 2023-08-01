@@ -25,6 +25,7 @@ repositories {
 }
 
 ext {
+    mockitoVersion = "5.4.0"
     okhttpVersion = "4.11.0"
 }
 
@@ -37,9 +38,10 @@ dependencies {
     testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.9.3"
     testImplementation "org.junit.jupiter:junit-jupiter:5.9.3"
-    testImplementation 'org.assertj:assertj-core:3.21.0'
-    testImplementation 'org.mockito:mockito-core:4.0.0'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.0'
+    testImplementation "org.assertj:assertj-core:3.21.0"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testImplementation "com.github.tomakehurst:wiremock-jre8:2.35.0"
 }
 
 java {

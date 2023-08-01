@@ -6,8 +6,9 @@ import com.burgstaller.okhttp.digest.Credentials;
 import okhttp3.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.net.SocketFactory;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import static org.mockito.BDDMockito.given;
  *
  * @author Alexey Vasilyev
  */
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationCacheInterceptorTest {
 
     @Mock
@@ -48,7 +50,6 @@ public class AuthenticationCacheInterceptorTest {
 
     @BeforeEach
     public void beforeMethod() {
-        MockitoAnnotations.initMocks(this);
 
         // setup some dummy data so that we dont get NPEs
         Address address = new Address("localhost", 8080, mockDns, socketFactory, null, null,
@@ -106,7 +107,7 @@ public class AuthenticationCacheInterceptorTest {
         // Fill in authCache.
         // https://myhost.com => basic auth user1:user1
         givenCachedAuthenticationFor("https://myhost.com", authCache);
-        assertEquals(1, authCache.size());
+        assertThat(authCache).hasSize(1);
 
         Interceptor interceptor = new AuthenticationCacheInterceptor(authCache);
 
@@ -125,7 +126,7 @@ public class AuthenticationCacheInterceptorTest {
         Interceptor interceptor = new AuthenticationCacheInterceptor(authCache);
 
         String auth = whenInterceptAuthenticationForUrlWithNoConnection(interceptor, "https://myhost.com:443");
-        assertNull(auth);
+        assertThat(auth).isNull();
     }
 
     @Test
