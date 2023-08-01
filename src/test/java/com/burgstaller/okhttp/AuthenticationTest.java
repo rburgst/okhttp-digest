@@ -7,12 +7,20 @@ import com.burgstaller.okhttp.digest.DigestAuthenticator;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.LoggedResponse;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.collect.Lists;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -23,12 +31,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -151,10 +157,87 @@ public class AuthenticationTest {
                                 .withStatusMessage("OK")
                         ).willSetStateTo(ACCESS_GRANTED)
                 );
-        Response response1 = client.newCall(request).execute();
-        assertThat(response1.code()).isEqualTo(200);
-        Response response2 = client.newCall(request).execute();
-        assertThat(response2.code()).isEqualTo(200);
+        Response myDirectResponse1 = client.newCall(request).execute();
+        assertThat(myDirectResponse1.code()).isEqualTo(200);
+        Response myDirectResponse2 = client.newCall(request).execute();
+        assertThat(myDirectResponse2.code()).isEqualTo(200);
+
+        Scenario scenario1 = wireMock.getScenarios().get(0);
+
+        //check scenario
+        assertThat(scenario1.getName()).isEqualTo("Proxy with authentication");
+        //check its final state
+        assertThat(scenario1.getState()).isEqualTo(ACCESS_GRANTED);
+
+        List<ServeEvent> allServeEvents = wmHttp.getAllServeEvents();
+        ArrayList<ServeEvent> serveEvents = Lists.newArrayList(allServeEvents);
+        //events are initially sorted with the more fresh event in the first position.
+        Collections.reverse(serveEvents);
+
+        assertThat(serveEvents).hasSize(4);
+
+        //1
+        ServeEvent serveEvent1 = serveEvents.get(0);
+        LoggedRequest request1 = serveEvent1.getRequest();
+        assertThat(request1.getUrl()).isEqualTo("/ping");
+        assertThat(request1.getMethod()).isEqualTo(RequestMethod.GET);
+        LoggedResponse response1 = serveEvent1.getResponse();
+        assertThat(response1.getHeaders().all()).contains(
+                new HttpHeader("Date","Wed, 21 Oct 2022 05:21:23 GMT"),
+                new HttpHeader("Proxy-Authenticate","Basic realm=\"Access to staging site\"")
+        );
+        int status1 = response1.getStatus();
+        assertThat(status1).isEqualTo(407);
+
+        //2
+        ServeEvent serveEvent2 = serveEvents.get(1);
+        LoggedRequest request2 = serveEvent2.getRequest();
+        assertThat(request2.getUrl()).isEqualTo("/ping");
+        assertThat(request2.getMethod()).isEqualTo(RequestMethod.GET);
+        assertThat(request2.getHeaders().all()).contains(
+                new HttpHeader("Proxy-Authorization","Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ==")
+        );
+        LoggedResponse response2 = serveEvent2.getResponse();
+        assertThat(response2.getHeaders().all()).contains(
+                new HttpHeader("Date","Wed, 21 Oct 2022 05:21:23 GMT"),
+                new HttpHeader("WWW-Authenticate","Basic realm=\"Access to staging site\"")
+        );
+        int status2 = response2.getStatus();
+        assertThat(status2).isEqualTo(401);
+
+        //3
+        ServeEvent serveEvent3 = serveEvents.get(2);
+        LoggedRequest request3 = serveEvent3.getRequest();
+        assertThat(request3.getUrl()).isEqualTo("/ping");
+        assertThat(request3.getMethod()).isEqualTo(RequestMethod.GET);
+        assertThat(request3.getHeaders().all()).contains(
+                new HttpHeader("Proxy-Authorization","Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ=="),
+                new HttpHeader("Authorization","Basic dXNlcjE6cGFzc3dvcmQx")
+        );
+        LoggedResponse response3 = serveEvent3.getResponse();
+        assertThat(response3.getHeaders().all()).contains(
+                new HttpHeader("Content/Type", "text/plain")
+        );
+        assertThat(response3.getBodyAsString()).isEqualTo(bodyResponse);
+        int status3 = response3.getStatus();
+        assertThat(status3).isEqualTo(200);
+
+        //4
+        ServeEvent serveEvent4 = serveEvents.get(3);
+        LoggedRequest request4 = serveEvent4.getRequest();
+        assertThat(request4.getUrl()).isEqualTo("/ping");
+        assertThat(request4.getMethod()).isEqualTo(RequestMethod.GET);
+        assertThat(request4.getHeaders().all()).contains(
+                new HttpHeader("Proxy-Authorization","Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ=="),
+                new HttpHeader("Authorization","Basic dXNlcjE6cGFzc3dvcmQx")
+        );
+        LoggedResponse response4 = serveEvent4.getResponse();
+        assertThat(response4.getHeaders().all()).contains(
+                new HttpHeader("Content/Type", "text/plain")
+        );
+        assertThat(response4.getBodyAsString()).isEqualTo(bodyResponse);
+        int status4 = response4.getStatus();
+        assertThat(status4).isEqualTo(200);
 
     }
 
@@ -186,14 +269,14 @@ public class AuthenticationTest {
         }).when(random).nextBytes(any(byte[].class));
 
         DigestAuthenticator digestProxyAuthenticator = new DigestAuthenticator(
-                new Credentials(proxyUsername, proxyPassword), StandardCharsets.US_ASCII,random);
+                new Credentials(proxyUsername, proxyPassword), StandardCharsets.US_ASCII, random);
 
 
         String username = "user1";
         String password = "password1";
 
         DigestAuthenticator digestAuthenticator = new DigestAuthenticator(
-                new Credentials(username, password),StandardCharsets.US_ASCII,random);
+                new Credentials(username, password), StandardCharsets.US_ASCII, random);
 
         final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
 
@@ -330,11 +413,87 @@ public class AuthenticationTest {
                                 .withStatusMessage("OK")
                         ).willSetStateTo(ACCESS_GRANTED)
                 );
-        Response response1 = client.newCall(request).execute();
-        assertThat(response1.code()).isEqualTo(200);
-        Response response2 = client.newCall(request).execute();
-        assertThat(response2.code()).isEqualTo(200);
+        Response myResponse1 = client.newCall(request).execute();
+        assertThat(myResponse1.code()).isEqualTo(200);
+        Response myResponse2 = client.newCall(request).execute();
+        assertThat(myResponse2.code()).isEqualTo(200);
 
+        Scenario scenario1 = wireMock.getScenarios().get(0);
+
+        //check scenario
+        assertThat(scenario1.getName()).isEqualTo(scenario);
+        //check its final state
+        assertThat(scenario1.getState()).isEqualTo(ACCESS_GRANTED);
+
+        List<ServeEvent> allServeEvents = wmHttp.getAllServeEvents();
+        ArrayList<ServeEvent> serveEvents = Lists.newArrayList(allServeEvents);
+        //events are initially sorted with the more fresh event in the first position.
+        Collections.reverse(serveEvents);
+
+        assertThat(serveEvents).hasSize(4);
+
+        //1
+        ServeEvent serveEvent1 = serveEvents.get(0);
+        LoggedRequest request1 = serveEvent1.getRequest();
+        assertThat(request1.getUrl()).isEqualTo("/ping");
+        assertThat(request1.getMethod()).isEqualTo(RequestMethod.GET);
+        LoggedResponse response1 = serveEvent1.getResponse();
+        assertThat(response1.getHeaders().all()).contains(
+                new HttpHeader("Date","Wed, 21 Oct 2022 05:21:23 GMT"),
+                new HttpHeader("Proxy-Authenticate","Digest realm=\"Access to proxy site\",qop=\"auth,auth-int\",nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\",opaque=\"5cdc029c403ebaf9f0171e9517f40e41\"")
+        );
+        int status1 = response1.getStatus();
+        assertThat(status1).isEqualTo(407);
+
+        //2
+        ServeEvent serveEvent2 = serveEvents.get(1);
+        LoggedRequest request2 = serveEvent2.getRequest();
+        assertThat(request2.getUrl()).isEqualTo("/ping");
+        assertThat(request2.getMethod()).isEqualTo(RequestMethod.GET);
+        assertThat(request2.getHeaders().all()).contains(
+                new HttpHeader("Proxy-Authorization","Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"e9920e89b8c768223a62dda432a33ab1\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\"")
+        );
+        LoggedResponse response2 = serveEvent2.getResponse();
+        assertThat(response2.getHeaders().all()).contains(
+                new HttpHeader("Date","Wed, 21 Oct 2022 05:21:23 GMT"),
+                new HttpHeader("WWW-Authenticate","Digest realm=\"Access to web site\",qop=\"auth,auth-int\",nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\",opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
+        );
+        int status2 = response2.getStatus();
+        assertThat(status2).isEqualTo(401);
+
+        //3
+        ServeEvent serveEvent3 = serveEvents.get(2);
+        LoggedRequest request3 = serveEvent3.getRequest();
+        assertThat(request3.getUrl()).isEqualTo("/ping");
+        assertThat(request3.getMethod()).isEqualTo(RequestMethod.GET);
+        assertThat(request3.getHeaders().all()).contains(
+                new HttpHeader("Proxy-Authorization","Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"e9920e89b8c768223a62dda432a33ab1\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\""),
+                new HttpHeader("Authorization","Digest username=\"user1\", realm=\"Access to web site\", nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\", uri=\"/ping\", response=\"cbe92e92eb135ebea5c11fdf80d728d4\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
+        );
+        LoggedResponse response3 = serveEvent3.getResponse();
+        assertThat(response3.getHeaders().all()).contains(
+                new HttpHeader("Content/Type", "text/plain")
+        );
+        assertThat(response3.getBodyAsString()).isEqualTo(bodyResponse);
+        int status3 = response3.getStatus();
+        assertThat(status3).isEqualTo(200);
+
+        //4
+        ServeEvent serveEvent4 = serveEvents.get(3);
+        LoggedRequest request4 = serveEvent4.getRequest();
+        assertThat(request4.getUrl()).isEqualTo("/ping");
+        assertThat(request4.getMethod()).isEqualTo(RequestMethod.GET);
+        assertThat(request4.getHeaders().all()).contains(
+                new HttpHeader("Proxy-Authorization","Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"ab6c6c6d8399935a747dba23f84d99e1\", qop=auth, nc=00000002, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\""),
+                new HttpHeader("Authorization","Digest username=\"user1\", realm=\"Access to web site\", nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\", uri=\"/ping\", response=\"3855fd23f16597806e6df635bf4a40fb\", qop=auth, nc=00000002, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
+        );
+        LoggedResponse response4 = serveEvent4.getResponse();
+        assertThat(response4.getHeaders().all()).contains(
+                new HttpHeader("Content/Type", "text/plain")
+        );
+        assertThat(response4.getBodyAsString()).isEqualTo(bodyResponse);
+        int status4 = response4.getStatus();
+        assertThat(status4).isEqualTo(200);
     }
 
 
