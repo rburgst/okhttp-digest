@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -34,7 +33,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

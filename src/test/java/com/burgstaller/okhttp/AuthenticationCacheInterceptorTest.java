@@ -22,8 +22,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -97,7 +95,7 @@ public class AuthenticationCacheInterceptorTest {
 
     private void thenAuthCacheShouldBeEmpty(Map<String, CachingAuthenticator> authCache) {
         // No cached authenticator anymore
-        assertEquals(0, authCache.size());
+        assertThat(authCache).isEmpty();
     }
 
     @Test
@@ -141,7 +139,7 @@ public class AuthenticationCacheInterceptorTest {
     }
 
     private void thenNoAuthorizationHeaderShouldBePresent(String authorization2) {
-        assertNull(authorization2);
+        assertThat(authorization2).isNull();
     }
 
     private void thenAuthorizationHeaderShouldBePresent(String authorization) {
