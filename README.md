@@ -78,5 +78,5 @@ client = builder
 ## Use via gradle
 
 ```groovy
-implementation 'io.github.rburgst:okhttp-digest:3.0.1'
+implementation 'io.github.rburgst:okhttp-digest:3.1.0'
 ```
