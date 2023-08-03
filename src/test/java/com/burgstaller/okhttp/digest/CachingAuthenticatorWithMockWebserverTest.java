@@ -12,9 +12,9 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.util.Map;
@@ -46,7 +46,7 @@ public class CachingAuthenticatorWithMockWebserverTest {
     private String expectedDigestClientAuthHeaderRegexp;
     private String expectedDigestClientAuthHeaderUser2Regexp;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         authCache = new ConcurrentHashMap<>();
         credentials = new Credentials("user1", "user1");

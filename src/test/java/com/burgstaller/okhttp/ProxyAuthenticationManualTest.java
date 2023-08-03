@@ -3,23 +3,21 @@ package com.burgstaller.okhttp;
 import com.burgstaller.okhttp.basic.BasicAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 import com.burgstaller.okhttp.digest.DigestAuthenticator;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-
 import okhttp3.Authenticator;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
+import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -48,7 +46,7 @@ import static org.junit.Assert.fail;
  *     https://github.com/softwaremill/sttp/blob/master/manual-tests/proxy-digest-test.md</a>
  * </p>
  */
-@Ignore
+@Disabled
 public class ProxyAuthenticationManualTest {
 
     private static final HttpLoggingInterceptor.Logger LOGGER = new HttpLoggingInterceptor.Logger() {
@@ -68,11 +66,9 @@ public class ProxyAuthenticationManualTest {
     private Proxy proxy;
     private String authPass = "allCorrect@auth";
     private String authUser = "okhttp_basic";
-    @Rule
-    public TestName name = new TestName();
 
-    @Before
-    public void setupProxy() {
+    @BeforeEach
+    public void setupProxy(TestInfo testInfo) {
 
         String proxyAddress = System.getenv("PROXY_HOST");
         if (proxyAddress == null) {
@@ -101,7 +97,7 @@ public class ProxyAuthenticationManualTest {
         int proxyPort = Integer.valueOf(proxyPortString);
         proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
 
-        System.err.println("starting " + name.getMethodName());
+        System.err.println("starting " + testInfo.getTestMethod());
     }
 
     @Test

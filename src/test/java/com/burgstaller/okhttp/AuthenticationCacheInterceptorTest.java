@@ -3,12 +3,14 @@ package com.burgstaller.okhttp;
 import com.burgstaller.okhttp.basic.BasicAuthenticator;
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
-
-import org.junit.Before;
-import org.junit.Test;
+import okhttp3.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -18,25 +20,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.net.SocketFactory;
-
-import okhttp3.Address;
-import okhttp3.Authenticator;
-import okhttp3.Connection;
-import okhttp3.ConnectionSpec;
-import okhttp3.Dns;
-import okhttp3.Interceptor;
-import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.Route;
-
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -44,6 +29,7 @@ import static org.mockito.BDDMockito.given;
  *
  * @author Alexey Vasilyev
  */
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationCacheInterceptorTest {
 
     @Mock
@@ -60,9 +46,8 @@ public class AuthenticationCacheInterceptorTest {
     @Mock
     Proxy proxy;
 
-    @Before
+    @BeforeEach
     public void beforeMethod() {
-        MockitoAnnotations.initMocks(this);
 
         // setup some dummy data so that we dont get NPEs
         Address address = new Address("localhost", 8080, mockDns, socketFactory, null, null,
@@ -110,7 +95,7 @@ public class AuthenticationCacheInterceptorTest {
 
     private void thenAuthCacheShouldBeEmpty(Map<String, CachingAuthenticator> authCache) {
         // No cached authenticator anymore
-        assertEquals(0, authCache.size());
+        assertThat(authCache).isEmpty();
     }
 
     @Test
@@ -120,7 +105,7 @@ public class AuthenticationCacheInterceptorTest {
         // Fill in authCache.
         // https://myhost.com => basic auth user1:user1
         givenCachedAuthenticationFor("https://myhost.com", authCache);
-        assertEquals(1, authCache.size());
+        assertThat(authCache).hasSize(1);
 
         Interceptor interceptor = new AuthenticationCacheInterceptor(authCache);
 
@@ -139,7 +124,7 @@ public class AuthenticationCacheInterceptorTest {
         Interceptor interceptor = new AuthenticationCacheInterceptor(authCache);
 
         String auth = whenInterceptAuthenticationForUrlWithNoConnection(interceptor, "https://myhost.com:443");
-        assertNull(auth);
+        assertThat(auth).isNull();
     }
 
     @Test
@@ -154,7 +139,7 @@ public class AuthenticationCacheInterceptorTest {
     }
 
     private void thenNoAuthorizationHeaderShouldBePresent(String authorization2) {
-        assertNull(authorization2);
+        assertThat(authorization2).isNull();
     }
 
     private void thenAuthorizationHeaderShouldBePresent(String authorization) {

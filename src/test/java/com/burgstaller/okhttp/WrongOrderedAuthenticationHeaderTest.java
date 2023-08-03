@@ -1,12 +1,11 @@
 package com.burgstaller.okhttp;
 
-import org.junit.Test;
-
-import java.util.List;
-
 import okhttp3.Challenge;
 import okhttp3.Headers;
 import okhttp3.internal.http.HttpHeaders;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
