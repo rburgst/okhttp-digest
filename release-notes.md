@@ -1,3 +1,6 @@
+## v3.1.0
+* add ability to combine http proxy and http client digest authentication (#83)
+
 ## v3.0.1
 * fix #80 where digest authentication did not work properly when using a proxy
 
