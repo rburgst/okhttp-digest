@@ -1,7 +1,11 @@
 package com.burgstaller.okhttp;
 
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
-import okhttp3.*;
+import okhttp3.Connection;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 import okhttp3.internal.platform.Platform;
 
 import java.io.IOException;
@@ -48,7 +52,7 @@ public class AuthenticationCacheInterceptor implements Interceptor {
         int responseCode = response != null ? response.code() : 0;
 
         //authentication was against a web site
-        if (authenticator != null && (!cacheKeyProvider.applyToProxy() && responseCode == HTTP_UNAUTHORIZED)){
+        if (authenticator != null && (!cacheKeyProvider.applyToProxy() && responseCode == HTTP_UNAUTHORIZED)) {
             // Remove cached authenticator and resend request
             if (authCache.remove(key) != null) {
                 response.body().close();
@@ -58,7 +62,7 @@ public class AuthenticationCacheInterceptor implements Interceptor {
             }
         }
         //authentication against a proxy
-        if (authenticator != null && (cacheKeyProvider.applyToProxy() && responseCode == HTTP_PROXY_AUTH)){
+        if (authenticator != null && (cacheKeyProvider.applyToProxy() && responseCode == HTTP_PROXY_AUTH)) {
             authCache.remove(key);
             //interceptor at the proxy level is a Network Interceptor which does not permit to call proceed more than once.
             //in this case, we don't close the request and call chain.proceed(request) another time

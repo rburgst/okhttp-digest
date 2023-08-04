@@ -20,8 +20,21 @@
 
 package com.burgstaller.okhttp.digest;
 
-import com.burgstaller.okhttp.digest.fromhttpclient.*;
-import okhttp3.*;
+import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueFormatter;
+import com.burgstaller.okhttp.digest.fromhttpclient.BasicHeaderValueParser;
+import com.burgstaller.okhttp.digest.fromhttpclient.BasicNameValuePair;
+import com.burgstaller.okhttp.digest.fromhttpclient.CharArrayBuffer;
+import com.burgstaller.okhttp.digest.fromhttpclient.HeaderElement;
+import com.burgstaller.okhttp.digest.fromhttpclient.HttpEntityDigester;
+import com.burgstaller.okhttp.digest.fromhttpclient.NameValuePair;
+import com.burgstaller.okhttp.digest.fromhttpclient.ParserCursor;
+import com.burgstaller.okhttp.digest.fromhttpclient.UnsupportedDigestAlgorithmException;
+import okhttp3.Headers;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.Route;
 import okhttp3.internal.platform.Platform;
 
 import java.io.IOException;
@@ -30,7 +43,16 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Formatter;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,13 +78,12 @@ public class DigestAuthenticator implements CachingAuthenticator {
      *
      * @see #encode(byte[])
      */
-    private static final char[] HEXADECIMAL = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
-            'e', 'f' };
-
-    private AtomicReference<Map<String, String>> parametersRef = new AtomicReference<>();
-    private Charset credentialsCharset;
+    private static final char[] HEXADECIMAL = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
+            'e', 'f'};
     private final Random random;
     private final Credentials credentials;
+    private final AtomicReference<Map<String, String>> parametersRef = new AtomicReference<>();
+    private final Charset credentialsCharset;
     private String lastNonce;
     private long nounceCount;
     private String cnonce;
@@ -82,7 +103,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
         this.random = new SecureRandom();
     }
 
-    public DigestAuthenticator(Credentials credentials, Charset credentialsCharset,Random random) {
+    public DigestAuthenticator(Credentials credentials, Charset credentialsCharset, Random random) {
         this.credentials = credentials;
         this.credentialsCharset = credentialsCharset;
         this.random = random;
@@ -250,6 +271,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
     /**
      * Copy of implementation in `RequestLine.requestPath` as this sometimes produces field not found errors.
+     *
      * @param url
      * @return
      */
@@ -274,7 +296,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
      * @param isStale when {@code true} then the server told us that the nonce was
      *                stale.
      * @return {@code true} in case the previous request already was authenticating
-     *         to the current server nonce.
+     * to the current server nonce.
      */
     private boolean havePreviousDigestAuthorizationAndShouldAbort(Request request, String nonce, boolean isStale) {
         final String headerKey;
@@ -306,7 +328,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
      */
     // @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("LSC_LITERAL_STRING_COMPARISON")
     private synchronized NameValuePair createDigestHeader(final Credentials credentials, final Request request,
-            final Map<String, String> parameters) throws AuthenticationException {
+                                                          final Map<String, String> parameters) throws AuthenticationException {
         final String uri = parameters.get("uri");
         final String realm = parameters.get("realm");
         final String nonce = parameters.get("nonce");

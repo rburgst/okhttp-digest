@@ -12,7 +12,6 @@ public final class DefaultProxyCacheKeyProvider implements CacheKeyProvider<Prox
     }
 
     /**
-     *
      * @param proxy {@link java.net.Proxy} used to get the cache key.
      * @return the cache key.
      */

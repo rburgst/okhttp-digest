@@ -30,7 +30,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
@@ -38,7 +42,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 public class AuthenticationTest {
     public static final String ACCESS_GRANTED = "access_granted";
@@ -183,8 +189,8 @@ public class AuthenticationTest {
         assertThat(request1.getMethod()).isEqualTo(RequestMethod.GET);
         LoggedResponse response1 = serveEvent1.getResponse();
         assertThat(response1.getHeaders().all()).contains(
-                new HttpHeader("Date","Wed, 21 Oct 2022 05:21:23 GMT"),
-                new HttpHeader("Proxy-Authenticate","Basic realm=\"Access to staging site\"")
+                new HttpHeader("Date", "Wed, 21 Oct 2022 05:21:23 GMT"),
+                new HttpHeader("Proxy-Authenticate", "Basic realm=\"Access to staging site\"")
         );
         int status1 = response1.getStatus();
         assertThat(status1).isEqualTo(407);
@@ -195,12 +201,12 @@ public class AuthenticationTest {
         assertThat(request2.getUrl()).isEqualTo("/ping");
         assertThat(request2.getMethod()).isEqualTo(RequestMethod.GET);
         assertThat(request2.getHeaders().all()).contains(
-                new HttpHeader("Proxy-Authorization","Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ==")
+                new HttpHeader("Proxy-Authorization", "Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ==")
         );
         LoggedResponse response2 = serveEvent2.getResponse();
         assertThat(response2.getHeaders().all()).contains(
-                new HttpHeader("Date","Wed, 21 Oct 2022 05:21:23 GMT"),
-                new HttpHeader("WWW-Authenticate","Basic realm=\"Access to staging site\"")
+                new HttpHeader("Date", "Wed, 21 Oct 2022 05:21:23 GMT"),
+                new HttpHeader("WWW-Authenticate", "Basic realm=\"Access to staging site\"")
         );
         int status2 = response2.getStatus();
         assertThat(status2).isEqualTo(401);
@@ -211,8 +217,8 @@ public class AuthenticationTest {
         assertThat(request3.getUrl()).isEqualTo("/ping");
         assertThat(request3.getMethod()).isEqualTo(RequestMethod.GET);
         assertThat(request3.getHeaders().all()).contains(
-                new HttpHeader("Proxy-Authorization","Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ=="),
-                new HttpHeader("Authorization","Basic dXNlcjE6cGFzc3dvcmQx")
+                new HttpHeader("Proxy-Authorization", "Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ=="),
+                new HttpHeader("Authorization", "Basic dXNlcjE6cGFzc3dvcmQx")
         );
         LoggedResponse response3 = serveEvent3.getResponse();
         assertThat(response3.getHeaders().all()).contains(
@@ -228,8 +234,8 @@ public class AuthenticationTest {
         assertThat(request4.getUrl()).isEqualTo("/ping");
         assertThat(request4.getMethod()).isEqualTo(RequestMethod.GET);
         assertThat(request4.getHeaders().all()).contains(
-                new HttpHeader("Proxy-Authorization","Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ=="),
-                new HttpHeader("Authorization","Basic dXNlcjE6cGFzc3dvcmQx")
+                new HttpHeader("Proxy-Authorization", "Basic cHJveHl1c2VyMTpwcm94eXBhc3N3b3JkMQ=="),
+                new HttpHeader("Authorization", "Basic dXNlcjE6cGFzc3dvcmQx")
         );
         LoggedResponse response4 = serveEvent4.getResponse();
         assertThat(response4.getHeaders().all()).contains(
@@ -439,8 +445,8 @@ public class AuthenticationTest {
         assertThat(request1.getMethod()).isEqualTo(RequestMethod.GET);
         LoggedResponse response1 = serveEvent1.getResponse();
         assertThat(response1.getHeaders().all()).contains(
-                new HttpHeader("Date","Wed, 21 Oct 2022 05:21:23 GMT"),
-                new HttpHeader("Proxy-Authenticate","Digest realm=\"Access to proxy site\",qop=\"auth,auth-int\",nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\",opaque=\"5cdc029c403ebaf9f0171e9517f40e41\"")
+                new HttpHeader("Date", "Wed, 21 Oct 2022 05:21:23 GMT"),
+                new HttpHeader("Proxy-Authenticate", "Digest realm=\"Access to proxy site\",qop=\"auth,auth-int\",nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\",opaque=\"5cdc029c403ebaf9f0171e9517f40e41\"")
         );
         int status1 = response1.getStatus();
         assertThat(status1).isEqualTo(407);
@@ -451,12 +457,12 @@ public class AuthenticationTest {
         assertThat(request2.getUrl()).isEqualTo("/ping");
         assertThat(request2.getMethod()).isEqualTo(RequestMethod.GET);
         assertThat(request2.getHeaders().all()).contains(
-                new HttpHeader("Proxy-Authorization","Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"e9920e89b8c768223a62dda432a33ab1\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\"")
+                new HttpHeader("Proxy-Authorization", "Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"e9920e89b8c768223a62dda432a33ab1\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\"")
         );
         LoggedResponse response2 = serveEvent2.getResponse();
         assertThat(response2.getHeaders().all()).contains(
-                new HttpHeader("Date","Wed, 21 Oct 2022 05:21:23 GMT"),
-                new HttpHeader("WWW-Authenticate","Digest realm=\"Access to web site\",qop=\"auth,auth-int\",nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\",opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
+                new HttpHeader("Date", "Wed, 21 Oct 2022 05:21:23 GMT"),
+                new HttpHeader("WWW-Authenticate", "Digest realm=\"Access to web site\",qop=\"auth,auth-int\",nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\",opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
         );
         int status2 = response2.getStatus();
         assertThat(status2).isEqualTo(401);
@@ -467,8 +473,8 @@ public class AuthenticationTest {
         assertThat(request3.getUrl()).isEqualTo("/ping");
         assertThat(request3.getMethod()).isEqualTo(RequestMethod.GET);
         assertThat(request3.getHeaders().all()).contains(
-                new HttpHeader("Proxy-Authorization","Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"e9920e89b8c768223a62dda432a33ab1\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\""),
-                new HttpHeader("Authorization","Digest username=\"user1\", realm=\"Access to web site\", nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\", uri=\"/ping\", response=\"cbe92e92eb135ebea5c11fdf80d728d4\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
+                new HttpHeader("Proxy-Authorization", "Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"e9920e89b8c768223a62dda432a33ab1\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\""),
+                new HttpHeader("Authorization", "Digest username=\"user1\", realm=\"Access to web site\", nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\", uri=\"/ping\", response=\"cbe92e92eb135ebea5c11fdf80d728d4\", qop=auth, nc=00000001, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
         );
         LoggedResponse response3 = serveEvent3.getResponse();
         assertThat(response3.getHeaders().all()).contains(
@@ -484,8 +490,8 @@ public class AuthenticationTest {
         assertThat(request4.getUrl()).isEqualTo("/ping");
         assertThat(request4.getMethod()).isEqualTo(RequestMethod.GET);
         assertThat(request4.getHeaders().all()).contains(
-                new HttpHeader("Proxy-Authorization","Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"ab6c6c6d8399935a747dba23f84d99e1\", qop=auth, nc=00000002, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\""),
-                new HttpHeader("Authorization","Digest username=\"user1\", realm=\"Access to web site\", nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\", uri=\"/ping\", response=\"3855fd23f16597806e6df635bf4a40fb\", qop=auth, nc=00000002, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
+                new HttpHeader("Proxy-Authorization", "Digest username=\"proxyuser1\", realm=\"Access to proxy site\", nonce=\"dcd98b7102dd2f0e8b11d0f615bfb0c093\", uri=\"/ping\", response=\"ab6c6c6d8399935a747dba23f84d99e1\", qop=auth, nc=00000002, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5cdc029c403ebaf9f0171e9517f40e41\""),
+                new HttpHeader("Authorization", "Digest username=\"user1\", realm=\"Access to web site\", nonce=\"aad55b7102dd2f0e8c99d123456fb0c011\", uri=\"/ping\", response=\"3855fd23f16597806e6df635bf4a40fb\", qop=auth, nc=00000002, cnonce=\"0001020304050607\", algorithm=MD5, opaque=\"5caa029c403ebaf9f3333e9517f40e66\"")
         );
         LoggedResponse response4 = serveEvent4.getResponse();
         assertThat(response4.getHeaders().all()).contains(

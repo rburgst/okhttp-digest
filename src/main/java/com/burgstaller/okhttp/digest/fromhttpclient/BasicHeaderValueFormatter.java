@@ -23,13 +23,13 @@ package com.burgstaller.okhttp.digest.fromhttpclient;
  * Helper class for formatting headers.
  */
 public class BasicHeaderValueFormatter {
-    public static final BasicHeaderValueFormatter DEFAULT  = new BasicHeaderValueFormatter();
+    public static final BasicHeaderValueFormatter DEFAULT = new BasicHeaderValueFormatter();
 
     public StringBuilder formatNameValuePair(StringBuilder charBuffer, NameValuePair nvp, boolean quote) {
 
         charBuffer.append(nvp.getName());
         String value = nvp.getValue();
-        if(value != null) {
+        if (value != null) {
             charBuffer.append('=');
             this.doFormatValue(charBuffer, value, quote);
         }
@@ -40,26 +40,26 @@ public class BasicHeaderValueFormatter {
     protected void doFormatValue(StringBuilder buffer, String value, boolean quote) {
         boolean quoteFlag = quote;
         int i;
-        if(!quote) {
-            for(i = 0; i < value.length() && !quoteFlag; ++i) {
+        if (!quote) {
+            for (i = 0; i < value.length() && !quoteFlag; ++i) {
                 quoteFlag = this.isSeparator(value.charAt(i));
             }
         }
 
-        if(quoteFlag) {
+        if (quoteFlag) {
             buffer.append('\"');
         }
 
-        for(i = 0; i < value.length(); ++i) {
+        for (i = 0; i < value.length(); ++i) {
             char ch = value.charAt(i);
-            if(this.isUnsafe(ch)) {
+            if (this.isUnsafe(ch)) {
                 buffer.append('\\');
             }
 
             buffer.append(ch);
         }
 
-        if(quoteFlag) {
+        if (quoteFlag) {
             buffer.append('\"');
         }
 

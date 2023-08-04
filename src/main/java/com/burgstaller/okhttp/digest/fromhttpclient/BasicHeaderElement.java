@@ -26,12 +26,12 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     private final NameValuePair[] parameters;
 
     public BasicHeaderElement(String name, String value, NameValuePair[] parameters) {
-        if(name == null) {
+        if (name == null) {
             throw new IllegalArgumentException("Name may not be null");
         } else {
             this.name = name;
             this.value = value;
-            if(parameters != null) {
+            if (parameters != null) {
                 this.parameters = parameters;
             } else {
                 this.parameters = new NameValuePair[0];
@@ -65,14 +65,14 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     }
 
     public NameValuePair getParameterByName(String name) {
-        if(name == null) {
+        if (name == null) {
             throw new IllegalArgumentException("Name may not be null");
         } else {
             NameValuePair found = null;
 
-            for(int i = 0; i < this.parameters.length; ++i) {
+            for (int i = 0; i < this.parameters.length; ++i) {
                 NameValuePair current = this.parameters[i];
-                if(current.getName().equalsIgnoreCase(name)) {
+                if (current.getName().equalsIgnoreCase(name)) {
                     found = current;
                     break;
                 }
@@ -83,14 +83,14 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     }
 
     public boolean equals(Object object) {
-        if(object == null) {
+        if (object == null) {
             return false;
-        } else if(this == object) {
+        } else if (this == object) {
             return true;
-        } else if(!(object instanceof HeaderElement)) {
+        } else if (!(object instanceof HeaderElement)) {
             return false;
         } else {
-            BasicHeaderElement that = (BasicHeaderElement)object;
+            BasicHeaderElement that = (BasicHeaderElement) object;
             return this.name.equals(that.name) && LangUtils.equals(this.value, that.value) && LangUtils.equals(this.parameters, that.parameters);
         }
     }
@@ -100,7 +100,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         int var3 = LangUtils.hashCode(hash, this.name);
         var3 = LangUtils.hashCode(var3, this.value);
 
-        for(int i = 0; i < this.parameters.length; ++i) {
+        for (int i = 0; i < this.parameters.length; ++i) {
             var3 = LangUtils.hashCode(var3, this.parameters[i]);
         }
 
@@ -110,12 +110,12 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     public String toString() {
         StringBuilder buffer = new StringBuilder(64);
         buffer.append(this.name);
-        if(this.value != null) {
+        if (this.value != null) {
             buffer.append("=");
             buffer.append(this.value);
         }
 
-        for(int i = 0; i < this.parameters.length; ++i) {
+        for (int i = 0; i < this.parameters.length; ++i) {
             buffer.append("; ");
             buffer.append(this.parameters[i]);
         }

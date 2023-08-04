@@ -9,7 +9,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,6 @@ import static org.junit.Assert.fail;
  * docker run -p 13128:13128 -it ubuntu
  * </pre>).
  * <p>
- *
  * Additional instructions can be found here:
  * <a href="https://github.com/softwaremill/sttp/blob/master/manual-tests/proxy-digest-test.md">
  *     https://github.com/softwaremill/sttp/blob/master/manual-tests/proxy-digest-test.md</a>

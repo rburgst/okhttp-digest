@@ -1,18 +1,17 @@
 package com.burgstaller.okhttp;
 
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
+import okhttp3.Authenticator;
+import okhttp3.Challenge;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import okhttp3.Authenticator;
-import okhttp3.Challenge;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.Route;
 
 /**
  * A dispatching authenticator which can be used with multiple auth schemes.

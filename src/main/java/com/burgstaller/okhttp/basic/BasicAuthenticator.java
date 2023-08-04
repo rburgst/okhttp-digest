@@ -43,7 +43,7 @@ public class BasicAuthenticator implements CachingAuthenticator {
 
         final String authorizationHeader = request.header(header);
         if (authorizationHeader != null && authorizationHeader.startsWith("Basic")) {
-            Platform.get().log( "Previous basic authentication failed, returning null", Platform.WARN,null);
+            Platform.get().log("Previous basic authentication failed, returning null", Platform.WARN, null);
             return null;
         }
         String authValue = okhttp3.Credentials.basic(credentials.getUserName(), credentials.getPassword(), credentialCharset);
