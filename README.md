@@ -34,10 +34,10 @@ If you want to support multiple authentication schemes (including auth caching) 
 work:
 
 ```java
-OkHttpClient.Builder builder = new OkHttpClient.Builder();
+final OkHttpClient.Builder builder = new OkHttpClient.Builder();
 final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
 
-Credentials credentials = new Credentials("username", "pass");
+final Credentials credentials = new Credentials("username", "pass");
 final BasicAuthenticator basicAuthenticator = new BasicAuthenticator(credentials);
 final DigestAuthenticator digestAuthenticator = new DigestAuthenticator(credentials);
 
@@ -47,24 +47,26 @@ DispatchingAuthenticator authenticator = new DispatchingAuthenticator.Builder()
         .with("basic", basicAuthenticator)
         .build();
 
-client = builder
+final OkHttpClient client = builder
         .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
-        .addInterceptor(new AuthenticationCacheInterceptor(authCache,new DefaultRequestCacheKeyProvider()))
+        .addInterceptor(new AuthenticationCacheInterceptor(authCache, new DefaultRequestCacheKeyProvider()))
         .addNetworkInterceptor(logger)
         .build();
 ```
 If you want to cache Proxy credentials, you need to add a NetworkInterceptor : 
 
 ```java
-client = builder
+final OkHttpClient client = builder
         .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
-        .addNetworkInterceptor(new AuthenticationCacheInterceptor(authCache,new DefaultProxyCacheKeyProvider()))
+        .addNetworkInterceptor(new AuthenticationCacheInterceptor(authCache, new DefaultProxyCacheKeyProvider()))
         .addNetworkInterceptor(logger)
         .build();
 ```
-You can also combine Proxy AND Web site Authentication : 
+
+You can also combine Proxy AND Web site Authentication :
+
 ```java
-client = builder
+final OkHttpClient client = builder
         .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
         .addNetworkInterceptor(new AuthenticationCacheInterceptor(authCache,new DefaultProxyCacheKeyProvider()))
         .addInterceptor(new AuthenticationCacheInterceptor(authCache,new DefaultRequestCacheKeyProvider()))        
