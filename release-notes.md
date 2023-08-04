@@ -1,5 +1,6 @@
 ## v3.1.0
 * add ability to combine http proxy and http client digest authentication (#83)
+* upgrade to okhttp 4.11.0
 
 ## v3.0.1
 * fix #80 where digest authentication did not work properly when using a proxy
