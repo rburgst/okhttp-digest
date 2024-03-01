@@ -188,7 +188,13 @@ public class DigestAuthenticator implements CachingAuthenticator {
             throw new IOException("missing nonce in challenge header: " + header);
         }
 
-        return authenticateWithState(route, response.request(), parameters);
+        Request request = authenticateWithState(route, response.request(), parameters);
+        List<String> cookies = response.headers().values("Set-Cookie");
+        if (request != null && !cookies.isEmpty()) {
+            String cookie = cookies.get(0).split(";")[0];
+            return request.newBuilder().header("Cookie", cookie).build();
+        }
+        return request;
     }
 
     private String getHeaderName(int httpStatus) {
