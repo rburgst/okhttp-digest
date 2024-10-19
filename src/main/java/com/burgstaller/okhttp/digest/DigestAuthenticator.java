@@ -242,7 +242,7 @@ public class DigestAuthenticator implements CachingAuthenticator {
 
         if (havePreviousDigestAuthorizationAndShouldAbort(request, nonce, isStale)) {
             // prevent infinite loops when the password is wrong
-            Platform.get().log("Previous digest authentication with same nonce failed, returning null", Platform.WARN,
+            Platform.get().log("Previous digest authentication with same nonce failed, returning null", Platform.INFO,
                     null);
             return null;
         }
