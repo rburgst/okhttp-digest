@@ -1,3 +1,6 @@
+## v3.1.1
+* reduce log level for technical warnings (#89)
+
 ## v3.1.0
 * add ability to combine http proxy and http client digest authentication (#83)
 * upgrade to okhttp 4.11.0
