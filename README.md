@@ -75,7 +75,7 @@ final OkHttpClient client = builder
 ```
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.rburgst/okhttp-digest/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.rburgst/okhttp-digest)
-[![Build Status](https://travis-ci.com/rburgst/okhttp-digest.svg?branch=master)](https://travis-ci.com/rburgst/okhttp-digest.svg?branch=master)
+[![Build Status](https://github.com/rburgst/okhttp-digest/actions/workflows/gradle.yml/badge.svg)](https://github.com/rburgst/okhttp-digest/actions/workflows/gradle.yml)
 
 ## Use via gradle
 
