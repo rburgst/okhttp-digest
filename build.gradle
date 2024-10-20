@@ -1,7 +1,7 @@
 plugins {
     id 'nu.studer.credentials' version '3.0'
     id 'java-library'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
     id 'maven-publish'
     id 'signing'
 }
@@ -25,8 +25,8 @@ repositories {
 }
 
 ext {
-    mockitoVersion = "5.4.0"
-    okhttpVersion = "4.11.0"
+    mockitoVersion = "5.14.2"
+    okhttpVersion = "4.12.0"
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -36,12 +36,12 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
     testImplementation "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
     testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.9.3"
-    testImplementation "org.junit.jupiter:junit-jupiter:5.9.3"
-    testImplementation "org.assertj:assertj-core:3.21.0"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.11.2"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.11.2"
+    testImplementation "org.assertj:assertj-core:3.26.3"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
-    testImplementation "com.github.tomakehurst:wiremock-jre8:2.35.0"
+    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.2'
 }
 
 java {
